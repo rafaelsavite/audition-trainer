@@ -1,63 +1,68 @@
 let bpm = 120;
-let beatInterval;
-let bolinha;
-let containerWidth = 500;
-let lastBeatTime = 0;
-let currentX = 0;
+let intervalId;
+let animationFrameId;
+let bolinha = document.getElementById("bolinha");
+let zona = document.getElementById("zona-perfect");
+let barra = document.getElementById("barra");
+let barraWidth = 500;
+let bolinhaWidth = 30;
+let startTime = 0;
+let duration = 0;
 
 function startTraining() {
   bpm = parseInt(document.getElementById("bpm").value);
-  const intervalMs = 60000 / bpm;
+  duration = 60000 / bpm;
 
-  const synth = new Tone.MembraneSynth().toDestination();
   Tone.start();
-  clearInterval(beatInterval);
+  const synth = new Tone.MembraneSynth().toDestination();
 
-  bolinha = document.getElementById("bolinha");
+  clearInterval(intervalId);
+  cancelAnimationFrame(animationFrameId);
 
-  currentX = 0;
-  bolinha.style.left = "0px";
-
-  beatInterval = setInterval(() => {
-    lastBeatTime = performance.now();
-    currentX = 0;
-    animateBolinha(intervalMs);
+  // Piscar no BPM
+  intervalId = setInterval(() => {
     synth.triggerAttackRelease("C2", "8n");
-  }, intervalMs);
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => zona.style.animation = "none", 400);
+    startTime = performance.now();
+    animateBolinha();
+  }, duration);
 }
 
-function animateBolinha(duration) {
+function animateBolinha() {
   const start = performance.now();
 
-  function move(timestamp) {
-    let elapsed = timestamp - start;
+  function frame(now) {
+    let elapsed = now - start;
     let percent = elapsed / duration;
     if (percent > 1) percent = 1;
 
-    const x = percent * (containerWidth - 20);
-    currentX = x;
+    const x = percent * (barraWidth - bolinhaWidth);
     bolinha.style.left = `${x}px`;
 
-    if (percent < 1) requestAnimationFrame(move);
+    if (percent < 1) {
+      animationFrameId = requestAnimationFrame(frame);
+    }
   }
 
-  requestAnimationFrame(move);
+  requestAnimationFrame(frame);
 }
 
 document.getElementById("startBtn").addEventListener("click", startTraining);
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
-    const center = (containerWidth - 20) / 2;
-    const diff = Math.abs(currentX - center);
+    const bolinhaLeft = bolinha.offsetLeft + bolinhaWidth / 2;
+    const perfectCenter = barra.offsetLeft + barraWidth / 2;
+    const diff = Math.abs(bolinhaLeft - perfectCenter);
 
-    let feedback = "";
-    if (diff < 5) feedback = "💯 PERFECT";
-    else if (diff < 15) feedback = "🔥 GREAT";
-    else if (diff < 30) feedback = "😐 COOL";
-    else if (diff < 50) feedback = "❌ BAD";
-    else feedback = "💀 MISS";
+    let result;
+    if (diff < 5) result = "💯 PERFECT";
+    else if (diff < 15) result = "🔥 GREAT";
+    else if (diff < 30) result = "😐 COOL";
+    else if (diff < 50) result = "❌ BAD";
+    else result = "💀 MISS";
 
-    document.getElementById("feedback").textContent = feedback;
+    document.getElementById("feedback").textContent = result;
   }
 });

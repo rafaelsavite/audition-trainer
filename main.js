@@ -1,25 +1,68 @@
-const redBar = document.querySelector('.combo-bar-red');
-const blueBar = document.querySelector('.combo-bar-blue');
+let bpm = 120;
+let intervalId;
+let animationFrameId;
+let bolinha = document.getElementById("bolinha");
+let zona = document.getElementById("zona-perfect");
+let barra = document.getElementById("barra");
+let barraWidth = 500;
+let bolinhaWidth = 30;
+let startTime = 0;
+let duration = 0;
 
-const totalWidth = 600; // em pixels, igual ao container
+function startTraining() {
+  bpm = parseInt(document.getElementById("bpm").value);
+  duration = 60000 / bpm;
 
-// Vamos deixar a barra azul fixa com 85% da largura do container,
-// deixando 15% no total de espaço (10% livre no final da barra azul como você pediu e 5% de sobra)
-blueBar.style.width = '85%';
+  Tone.start();
+  const synth = new Tone.MembraneSynth().toDestination();
 
-let redWidthPercent = 0;
+  clearInterval(intervalId);
+  cancelAnimationFrame(animationFrameId);
 
-function updateRedBar() {
-  // Incrementa a barra vermelha em 2% até um máximo de 75% para deixar 10% de espaço livre (já que azul tá em 85%)
-  if (redWidthPercent < 75) {
-    redWidthPercent += 2;
-    redBar.style.width = redWidthPercent + '%';
-  } else {
-    // Reseta para simular o combo acabando e recomeçando (só pra teste)
-    redWidthPercent = 0;
-    redBar.style.width = '0%';
-  }
+  // Piscar no BPM
+  intervalId = setInterval(() => {
+    synth.triggerAttackRelease("C2", "8n");
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => zona.style.animation = "none", 400);
+    startTime = performance.now();
+    animateBolinha();
+  }, duration);
 }
 
-// Atualiza a barra vermelha a cada 100ms para mostrar movimento
-setInterval(updateRedBar, 100);
+function animateBolinha() {
+  const start = performance.now();
+
+  function frame(now) {
+    let elapsed = now - start;
+    let percent = elapsed / duration;
+    if (percent > 1) percent = 1;
+
+    const x = percent * (barraWidth - bolinhaWidth);
+    bolinha.style.left = `${x}px`;
+
+    if (percent < 1) {
+      animationFrameId = requestAnimationFrame(frame);
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+
+document.getElementById("startBtn").addEventListener("click", startTraining);
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    const bolinhaLeft = bolinha.offsetLeft + bolinhaWidth / 2;
+    const zonaCenter = barra.offsetLeft + barraWidth * 0.85; // 85%
+    const diff = Math.abs(bolinhaLeft - zonaCenter);
+
+    let result;
+    if (diff < 15) result = "💯 PERFECT";
+    else if (diff < 35) result = "🔥 GREAT";
+    else if (diff < 55) result = "😐 COOL";
+    else if (diff < 80) result = "❌ BAD";
+    else result = "💀 MISS";
+
+    document.getElementById("feedback").textContent = result;
+  }
+});

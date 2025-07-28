@@ -8,7 +8,7 @@ body {
 
 #barra {
   position: relative;
-  width: 500px;
+  width: 400px;
   height: 20px;
   margin: 50px auto;
   background: #000;
@@ -19,9 +19,9 @@ body {
 
 #zona-perfect {
   position: absolute;
-  width: 120px; /* mais largo ainda */
+  width: 110px; /* mais largo ainda */
   height: 100%;
-  left: 60%; /* deslocado mais pra direita */
+  left: 75%; /* deslocado mais pra direita */
   transform: translateX(-50%);
   background: radial-gradient(circle, #00d0ff, #0066cc);
   border-radius: 10px;

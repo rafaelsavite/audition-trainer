@@ -19,9 +19,9 @@ body {
 
 #zona-perfect {
   position: absolute;
-  width: 40px;
+  width: 150px; /* Aumentado */
   height: 100%;
-  left: 50%;
+  left: 85%; /* Posicionado mais à direita */
   transform: translateX(-50%);
   background: radial-gradient(circle, #00d0ff, #0066cc);
   border-radius: 10px;
@@ -30,9 +30,9 @@ body {
 }
 
 @keyframes pulse {
-  0% { opacity: 0.8; transform: translateX(-50%) scale(1.1); }
+  0% { opacity: 0.9; transform: translateX(-50%) scale(1.1); }
   50% { opacity: 0.3; transform: translateX(-50%) scale(1); }
-  100% { opacity: 0.8; transform: translateX(-50%) scale(1.1); }
+  100% { opacity: 0.9; transform: translateX(-50%) scale(1.1); }
 }
 
 #bolinha {

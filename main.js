@@ -53,7 +53,7 @@ document.getElementById("startBtn").addEventListener("click", startTraining);
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
     const bolinhaLeft = bolinha.offsetLeft + bolinhaWidth / 2;
-    const zonaCenter = barra.offsetLeft + barraWidth * 0.85; // 85%
+    const zonaCenter = barra.offsetLeft + barraWidth * 0.75; // 75%
     const diff = Math.abs(bolinhaLeft - zonaCenter);
 
     let result;

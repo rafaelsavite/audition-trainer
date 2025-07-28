@@ -19,15 +19,16 @@ body {
 
 #zona-perfect {
   position: absolute;
-  width: 150px; /* Aumentado */
+  width: 120px; /* mais largo ainda */
   height: 100%;
-  left: 85%; /* Posicionado mais à direita */
+  left: 80%; /* deslocado mais pra direita */
   transform: translateX(-50%);
   background: radial-gradient(circle, #00d0ff, #0066cc);
   border-radius: 10px;
   opacity: 0.6;
   animation: none;
 }
+
 
 @keyframes pulse {
   0% { opacity: 0.9; transform: translateX(-50%) scale(1.1); }

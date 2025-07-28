@@ -4,9 +4,8 @@ let animationFrameId;
 let bolinha = document.getElementById("bolinha");
 let zona = document.getElementById("zona-perfect");
 let barra = document.getElementById("barra");
-let barraWidth = 500;
-let bolinhaWidth = 30;
-let startTime = 0;
+let barraWidth = barra.offsetWidth;
+let bolinhaWidth = bolinha.offsetWidth;
 let duration = 0;
 
 function startTraining() {
@@ -19,12 +18,11 @@ function startTraining() {
   clearInterval(intervalId);
   cancelAnimationFrame(animationFrameId);
 
-  // Piscar no BPM
   intervalId = setInterval(() => {
     synth.triggerAttackRelease("C2", "8n");
-    zona.style.animation = "pulse 0.4s ease";
-    setTimeout(() => zona.style.animation = "none", 400);
-    startTime = performance.now();
+    const batidaDuracaoSegundos = 60 / bpm;
+    zona.style.animation = `pulse ${batidaDuracaoSegundos}s ease`;
+    setTimeout(() => zona.style.animation = "none", batidaDuracaoSegundos * 1000);
     animateBolinha();
   }, duration);
 }
@@ -52,8 +50,8 @@ document.getElementById("startBtn").addEventListener("click", startTraining);
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
-    const bolinhaCenter = bolinha.offsetLeft + bolinha.offsetWidth / 2;
-    const zonaCenter = barra.offsetWidth * 0.75; // mesma referência da bolinha
+    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
+    const zonaCenter = barraWidth * 0.75; // zona posicionada em 75% da barra
     const diff = Math.abs(bolinhaCenter - zonaCenter);
 
     let result;

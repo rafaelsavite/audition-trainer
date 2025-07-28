@@ -1,66 +1,70 @@
-const bolinha = document.getElementById("bolinha");
-const zonaPerfect = document.getElementById("zona-perfect");
-const feedback = document.getElementById("feedback");
-
-let bpm = 120; // você pode alterar isso ou criar uma interface pra mudar
-let intervalo = (60 / bpm) * 1000;
-let posicao = 0;
-let direcao = 1;
-
-function moverBolinha() {
+document.addEventListener("DOMContentLoaded", () => {
+  const bolinha = document.getElementById("bolinha");
+  const zonaPerfect = document.getElementById("zona-perfect");
+  const feedback = document.getElementById("feedback");
   const barra = document.getElementById("barra-container");
-  const larguraBarra = barra.offsetWidth;
-  const larguraBolinha = bolinha.offsetWidth;
-  const passo = larguraBarra / 200; // suavidade da movimentação
 
-  posicao += passo * direcao;
+  let bpm = 120; // pode adaptar com interface futuramente
+  let intervalo = (60 / bpm) * 1000;
+  let posicao = 0;
+  let direcao = 1;
 
-  if (posicao + larguraBolinha >= larguraBarra) {
-    direcao = -1;
-    posicao = larguraBarra - larguraBolinha;
-  } else if (posicao <= 0) {
-    direcao = 1;
-    posicao = 0;
-  }
+  // Movimento contínuo da bolinha
+  function moverBolinha() {
+    const larguraBarra = barra.offsetWidth;
+    const larguraBolinha = bolinha.offsetWidth;
+    const passo = larguraBarra / 200;
 
-  bolinha.style.left = `${posicao}px`;
-}
+    posicao += passo * direcao;
 
-let movimento = setInterval(moverBolinha, intervalo / 60);
-
-function handleKeyPress(event) {
-  if (event.code === "Space") {
-    const bolinhaRect = bolinha.getBoundingClientRect();
-    const zonaRect = zonaPerfect.getBoundingClientRect();
-    const barraRect = document.getElementById("barra-container").getBoundingClientRect();
-
-    const bolinhaX = bolinhaRect.left + bolinhaRect.width / 2 - barraRect.left;
-    const targetX = zonaRect.left + zonaRect.width / 2 - barraRect.left;
-
-    const distancia = Math.abs(bolinhaX - targetX);
-
-    let resultado = "";
-    if (distancia < 10) {
-      resultado = "Perfect";
-      feedback.style.color = "#00ffcc";
-    } else if (distancia < 25) {
-      resultado = "Great";
-      feedback.style.color = "#00ccff";
-    } else if (distancia < 50) {
-      resultado = "Cool";
-      feedback.style.color = "#0066ff";
-    } else if (distancia < 75) {
-      resultado = "Bad";
-      feedback.style.color = "#ff6600";
-    } else {
-      resultado = "Miss";
-      feedback.style.color = "#ff0033";
+    if (posicao + larguraBolinha >= larguraBarra) {
+      direcao = -1;
+      posicao = larguraBarra - larguraBolinha;
+    } else if (posicao <= 0) {
+      direcao = 1;
+      posicao = 0;
     }
 
-    feedback.textContent = resultado;
-    feedback.classList.add("mostrar");
-    setTimeout(() => feedback.classList.remove("mostrar"), 500);
+    bolinha.style.left = `${posicao}px`;
   }
-}
 
-document.addEventListener("keydown", handleKeyPress);
+  setInterval(moverBolinha, intervalo / 60);
+
+  // Captura do espaço e verificação de precisão
+  function handleKeyPress(event) {
+    if (event.code === "Space") {
+      const bolinhaRect = bolinha.getBoundingClientRect();
+      const zonaRect = zonaPerfect.getBoundingClientRect();
+      const barraRect = barra.getBoundingClientRect();
+
+      const bolinhaX = bolinhaRect.left + bolinhaRect.width / 2 - barraRect.left;
+      const targetX = zonaRect.left + zonaRect.width / 2 - barraRect.left;
+
+      const distancia = Math.abs(bolinhaX - targetX);
+      let resultado = "";
+
+      if (distancia < 10) {
+        resultado = "Perfect";
+        feedback.style.color = "#00ffcc";
+      } else if (distancia < 25) {
+        resultado = "Great";
+        feedback.style.color = "#00ccff";
+      } else if (distancia < 50) {
+        resultado = "Cool";
+        feedback.style.color = "#0066ff";
+      } else if (distancia < 75) {
+        resultado = "Bad";
+        feedback.style.color = "#ff6600";
+      } else {
+        resultado = "Miss";
+        feedback.style.color = "#ff0033";
+      }
+
+      feedback.textContent = resultado;
+      feedback.classList.add("mostrar");
+      setTimeout(() => feedback.classList.remove("mostrar"), 600);
+    }
+  }
+
+  document.addEventListener("keydown", handleKeyPress);
+});

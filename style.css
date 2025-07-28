@@ -19,9 +19,9 @@ body {
 
 #zona-perfect {
   position: absolute;
-  width: 150px; /* Aumentado */
+  width: 120px; /* mais largo ainda */
   height: 100%;
-  left: 85%; /* Posicionado mais à direita */
+  left: 80%; /* deslocado mais pra direita */
   transform: translateX(-50%);
   background: radial-gradient(circle, #00d0ff, #0066cc);
   border-radius: 10px;

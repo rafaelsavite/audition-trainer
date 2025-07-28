@@ -1,55 +1,66 @@
-body {
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: white;
-  text-align: center;
-  padding-top: 40px;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const bolinha = document.getElementById("bolinha");
+  const zonaPerfect = document.getElementById("zona-perfect");
+  const feedback = document.getElementById("feedback");
+  const barra = document.getElementById("barra-container");
 
-#barra-container {
-  position: relative;
-  width: 500px;
-  height: 30px;
-  margin: 50px auto;
-  background: #000;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 0 8px #333 inset;
-}
+  let bpm = 120;
+  let intervalo = (60 / bpm) * 1000;
+  let posicao = 0;
+  let direcao = 1;
 
-#zona-perfect {
-  position: absolute;
-  width: 100px;
-  height: 100%;
-  left: 80%;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, #00d0ff, #0066cc);
-  border-radius: 10px;
-  opacity: 0.5;
-}
+  function moverBolinha() {
+    const larguraBarra = barra.offsetWidth;
+    const larguraBolinha = bolinha.offsetWidth;
+    const passo = larguraBarra / 200;
 
-#bolinha {
-  position: absolute;
-  top: 0px;
-  width: 30px;
-  height: 30px;
-  background: red;
-  border-radius: 50%;
-  left: 0;
-  transition: left 0.05s linear;
-}
+    posicao += passo * direcao;
 
-#feedback {
-  margin-top: 40px;
-  font-size: 2em;
-}
+    if (posicao + larguraBolinha >= larguraBarra) {
+      direcao = -1;
+      posicao = larguraBarra - larguraBolinha;
+    } else if (posicao <= 0) {
+      direcao = 1;
+      posicao = 0;
+    }
 
-.mostrar {
-  animation: fade 0.6s ease-in-out;
-}
+    bolinha.style.left = `${posicao}px`;
+  }
 
-@keyframes fade {
-  0% { opacity: 0; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.1); }
-  100% { opacity: 0; transform: scale(1); }
-}
+  setInterval(moverBolinha, intervalo / 60);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.code === "Space") {
+      const bolinhaRect = bolinha.getBoundingClientRect();
+      const zonaRect = zonaPerfect.getBoundingClientRect();
+      const barraRect = barra.getBoundingClientRect();
+
+      const bolinhaX = bolinhaRect.left + bolinhaRect.width / 2 - barraRect.left;
+      const targetX = zonaRect.left + zonaRect.width / 2 - barraRect.left;
+
+      const distancia = Math.abs(bolinhaX - targetX);
+      let resultado = "";
+
+      if (distancia < 10) {
+        resultado = "Perfect";
+        feedback.style.color = "#00ffcc";
+      } else if (distancia < 25) {
+        resultado = "Great";
+        feedback.style.color = "#00ccff";
+      } else if (distancia < 50) {
+        resultado = "Cool";
+        feedback.style.color = "#0066ff";
+      } else if (distancia < 75) {
+        resultado = "Bad";
+        feedback.style.color = "#ff6600";
+      } else {
+        resultado = "Miss";
+        feedback.style.color = "#ff0033";
+      }
+
+      feedback.textContent = resultado;
+      feedback.classList.add("mostrar");
+      setTimeout(() => feedback.classList.remove("mostrar"), 600);
+    }
+  });
+});

@@ -53,14 +53,14 @@ document.getElementById("startBtn").addEventListener("click", startTraining);
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
     const bolinhaLeft = bolinha.offsetLeft + bolinhaWidth / 2;
-    const perfectCenter = barra.offsetLeft + barraWidth / 2;
-    const diff = Math.abs(bolinhaLeft - perfectCenter);
+    const zonaCenter = barra.offsetLeft + barraWidth * 0.85; // 85%
+    const diff = Math.abs(bolinhaLeft - zonaCenter);
 
     let result;
-    if (diff < 5) result = "💯 PERFECT";
-    else if (diff < 15) result = "🔥 GREAT";
-    else if (diff < 30) result = "😐 COOL";
-    else if (diff < 50) result = "❌ BAD";
+    if (diff < 15) result = "💯 PERFECT";
+    else if (diff < 35) result = "🔥 GREAT";
+    else if (diff < 55) result = "😐 COOL";
+    else if (diff < 80) result = "❌ BAD";
     else result = "💀 MISS";
 
     document.getElementById("feedback").textContent = result;

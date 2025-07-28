@@ -20,9 +20,17 @@ function startTraining() {
 
   intervalId = setInterval(() => {
     synth.triggerAttackRelease("C2", "8n");
+
+    // Reinicia a animação para forçar o restart
+    zona.style.animation = "none";
+    // Força o reflow para que a animação reinicie
+    void zona.offsetWidth;
+
     const batidaDuracaoSegundos = 60 / bpm;
     zona.style.animation = `pulse ${batidaDuracaoSegundos}s ease`;
+
     setTimeout(() => zona.style.animation = "none", batidaDuracaoSegundos * 1000);
+
     animateBolinha();
   }, duration);
 }
@@ -51,7 +59,7 @@ document.getElementById("startBtn").addEventListener("click", startTraining);
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
-    const zonaCenter = barraWidth * 0.75; // zona posicionada em 75% da barra
+    const zonaCenter = barraWidth * 0.75; // zona no 75% da barra
     const diff = Math.abs(bolinhaCenter - zonaCenter);
 
     let result;

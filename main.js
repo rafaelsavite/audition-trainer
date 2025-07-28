@@ -52,9 +52,9 @@ document.getElementById("startBtn").addEventListener("click", startTraining);
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
-    const bolinhaLeft = bolinha.offsetLeft + bolinhaWidth / 2;
-    const zonaCenter = barra.offsetLeft + barraWidth * 0.75; // 75%
-    const diff = Math.abs(bolinhaLeft - zonaCenter);
+    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
+    const zonaCenter = barraWidth * 0.75; // agora está no mesmo sistema (relativo à barra)
+    const diff = Math.abs(bolinhaCenter - zonaCenter);
 
     let result;
     if (diff < 15) result = "💯 PERFECT";

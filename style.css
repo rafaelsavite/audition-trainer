@@ -1,66 +1,48 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const bolinha = document.getElementById("bolinha");
-  const zonaPerfect = document.getElementById("zona-perfect");
-  const feedback = document.getElementById("feedback");
-  const barra = document.getElementById("barra-container");
+body {
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
 
-  let bpm = 120;
-  let intervalo = (60 / bpm) * 1000;
-  let posicao = 0;
-  let direcao = 1;
+.combo-bar-container {
+  width: 600px; /* largura total da barra */
+  height: 30px;
+  position: relative;
+}
 
-  function moverBolinha() {
-    const larguraBarra = barra.offsetWidth;
-    const larguraBolinha = bolinha.offsetWidth;
-    const passo = larguraBarra / 200;
+.combo-bar-background {
+  width: 100%;
+  height: 100%;
+  background: #222;
+  border: 2px solid #444;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
 
-    posicao += passo * direcao;
+.combo-bar-red {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff3b3b, #d60000);
+  border-radius: 8px 0 0 8px;
+  transition: width 0.1s ease-out;
+  z-index: 2;
+}
 
-    if (posicao + larguraBolinha >= larguraBarra) {
-      direcao = -1;
-      posicao = larguraBarra - larguraBolinha;
-    } else if (posicao <= 0) {
-      direcao = 1;
-      posicao = 0;
-    }
-
-    bolinha.style.left = `${posicao}px`;
-  }
-
-  setInterval(moverBolinha, intervalo / 60);
-
-  document.addEventListener("keydown", (event) => {
-    if (event.code === "Space") {
-      const bolinhaRect = bolinha.getBoundingClientRect();
-      const zonaRect = zonaPerfect.getBoundingClientRect();
-      const barraRect = barra.getBoundingClientRect();
-
-      const bolinhaX = bolinhaRect.left + bolinhaRect.width / 2 - barraRect.left;
-      const targetX = zonaRect.left + zonaRect.width / 2 - barraRect.left;
-
-      const distancia = Math.abs(bolinhaX - targetX);
-      let resultado = "";
-
-      if (distancia < 10) {
-        resultado = "Perfect";
-        feedback.style.color = "#00ffcc";
-      } else if (distancia < 25) {
-        resultado = "Great";
-        feedback.style.color = "#00ccff";
-      } else if (distancia < 50) {
-        resultado = "Cool";
-        feedback.style.color = "#0066ff";
-      } else if (distancia < 75) {
-        resultado = "Bad";
-        feedback.style.color = "#ff6600";
-      } else {
-        resultado = "Miss";
-        feedback.style.color = "#ff0033";
-      }
-
-      feedback.textContent = resultado;
-      feedback.classList.add("mostrar");
-      setTimeout(() => feedback.classList.remove("mostrar"), 600);
-    }
-  });
-});
+.combo-bar-blue {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 85%; /* começa com 85% da largura */
+  background: linear-gradient(90deg, #3399ff, #005bb5);
+  border-radius: 8px 0 0 8px;
+  opacity: 0.8;
+  z-index: 1;
+}

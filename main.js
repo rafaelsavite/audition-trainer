@@ -1,70 +1,25 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const bolinha = document.getElementById("bolinha");
-  const zonaPerfect = document.getElementById("zona-perfect");
-  const feedback = document.getElementById("feedback");
-  const barra = document.getElementById("barra-container");
+const redBar = document.querySelector('.combo-bar-red');
+const blueBar = document.querySelector('.combo-bar-blue');
 
-  let bpm = 120; // pode adaptar com interface futuramente
-  let intervalo = (60 / bpm) * 1000;
-  let posicao = 0;
-  let direcao = 1;
+const totalWidth = 600; // em pixels, igual ao container
 
-  // Movimento contínuo da bolinha
-  function moverBolinha() {
-    const larguraBarra = barra.offsetWidth;
-    const larguraBolinha = bolinha.offsetWidth;
-    const passo = larguraBarra / 200;
+// Vamos deixar a barra azul fixa com 85% da largura do container,
+// deixando 15% no total de espaço (10% livre no final da barra azul como você pediu e 5% de sobra)
+blueBar.style.width = '85%';
 
-    posicao += passo * direcao;
+let redWidthPercent = 0;
 
-    if (posicao + larguraBolinha >= larguraBarra) {
-      direcao = -1;
-      posicao = larguraBarra - larguraBolinha;
-    } else if (posicao <= 0) {
-      direcao = 1;
-      posicao = 0;
-    }
-
-    bolinha.style.left = `${posicao}px`;
+function updateRedBar() {
+  // Incrementa a barra vermelha em 2% até um máximo de 75% para deixar 10% de espaço livre (já que azul tá em 85%)
+  if (redWidthPercent < 75) {
+    redWidthPercent += 2;
+    redBar.style.width = redWidthPercent + '%';
+  } else {
+    // Reseta para simular o combo acabando e recomeçando (só pra teste)
+    redWidthPercent = 0;
+    redBar.style.width = '0%';
   }
+}
 
-  setInterval(moverBolinha, intervalo / 60);
-
-  // Captura do espaço e verificação de precisão
-  function handleKeyPress(event) {
-    if (event.code === "Space") {
-      const bolinhaRect = bolinha.getBoundingClientRect();
-      const zonaRect = zonaPerfect.getBoundingClientRect();
-      const barraRect = barra.getBoundingClientRect();
-
-      const bolinhaX = bolinhaRect.left + bolinhaRect.width / 2 - barraRect.left;
-      const targetX = zonaRect.left + zonaRect.width / 2 - barraRect.left;
-
-      const distancia = Math.abs(bolinhaX - targetX);
-      let resultado = "";
-
-      if (distancia < 10) {
-        resultado = "Perfect";
-        feedback.style.color = "#00ffcc";
-      } else if (distancia < 25) {
-        resultado = "Great";
-        feedback.style.color = "#00ccff";
-      } else if (distancia < 50) {
-        resultado = "Cool";
-        feedback.style.color = "#0066ff";
-      } else if (distancia < 75) {
-        resultado = "Bad";
-        feedback.style.color = "#ff6600";
-      } else {
-        resultado = "Miss";
-        feedback.style.color = "#ff0033";
-      }
-
-      feedback.textContent = resultado;
-      feedback.classList.add("mostrar");
-      setTimeout(() => feedback.classList.remove("mostrar"), 600);
-    }
-  }
-
-  document.addEventListener("keydown", handleKeyPress);
-});
+// Atualiza a barra vermelha a cada 100ms para mostrar movimento
+setInterval(updateRedBar, 100);

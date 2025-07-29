@@ -1,54 +1,34 @@
-body {
-  background-color: #111;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  font-family: Arial, sans-serif;
-  color: white;
-}
+document.addEventListener("keydown", handleKeyPress);
 
-#barra-container {
-  position: relative;
-  width: 80%;
-  height: 40px;
-  background: #333;
-  border-radius: 20px;
-  overflow: hidden;
-  margin-bottom: 20px;
-}
+function handleKeyPress(e) {
+  if (e.code === "Space") {
+    const bolinha = document.getElementById("bolinha");
+    const zonaPerfect = document.getElementById("zona-perfect");
+    const barra = document.getElementById("barra-container");
+    const resultado = document.getElementById("resultado");
 
-#zona-perfect {
-  position: absolute;
-  width: 120px;
-  height: 100%;
-  left: 80%;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, #00d0ff, #0066cc);
-  border-radius: 10px;
-  opacity: 0.6;
-  animation: none;
-}
+    const bolinhaRect = bolinha.getBoundingClientRect();
+    const zonaRect = zonaPerfect.getBoundingClientRect();
+    const barraRect = barra.getBoundingClientRect();
 
-#bolinha {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background-color: lime;
-  border-radius: 50%;
-  top: 10px;
-  left: 0;
-  animation: mover 2s linear infinite;
-}
+    const bolinhaX = bolinhaRect.left + bolinhaRect.width / 2 - barraRect.left;
+    const targetX = zonaRect.left + zonaRect.width / 2 - barraRect.left;
+    const distance = Math.abs(bolinhaX - targetX);
 
-@keyframes mover {
-  from { left: 0%; }
-  to { left: 100%; }
-}
+    if (distance < 10) {
+      resultado.textContent = "Perfect!";
+      resultado.style.color = "aqua";
+    } else if (distance < 30) {
+      resultado.textContent = "Cool";
+      resultado.style.color = "lightgreen";
+    } else if (distance < 60) {
+      resultado.textContent = "Bad";
+      resultado.style.color = "orange";
+    } else {
+      resultado.textContent = "Miss";
+      resultado.style.color = "red";
+    }
 
-#resultado {
-  font-size: 24px;
-  height: 30px;
+    setTimeout(() => resultado.textContent = "", 500);
+  }
 }

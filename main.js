@@ -58,7 +58,7 @@ document.getElementById("startBtn").addEventListener("click", startTraining);
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") { // Se a tecla pressionada for a barra de espaço
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2; // Calcula o ponto central da bolinha na barra
-    const zonaCenter = barraWidth * 0.75; // Define o ponto central da zona "perfect" como 75% da largura da barra
+    const zonaCenter = (barraWidth * 0.85) / 2; // Define o ponto central da zona "perfect" como 75% da largura da barra
     const diff = Math.abs(bolinhaCenter - zonaCenter); // Calcula a distância entre o centro da bolinha e o centro da zona perfeita
 
     let result; // Variável que vai armazenar o resultado do timing baseado na proximidade da bolinha com a zona

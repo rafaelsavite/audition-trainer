@@ -8,11 +8,10 @@ let feedback = document.getElementById("feedback");
 
 let barraWidth = 400;
 let bolinhaWidth = 30;
-let startTime = 0;
 let duration = 0;
 
-let isActive = true; // controla se a rodada está ativa ou em pausa
-let perfectCount = 0; // contador de perfects seguidos
+let inputEnabled = true; // controla se pode apertar espaço e validar acerto
+let perfectCount = 0;
 
 function startTraining() {
   bpm = parseInt(document.getElementById("bpm").value);
@@ -24,36 +23,26 @@ function startTraining() {
   clearInterval(intervalId);
   cancelAnimationFrame(animationFrameId);
 
-  isActive = true;
+  inputEnabled = true;
   perfectCount = 0;
   updateUIState();
 
   intervalId = setInterval(() => {
-    // alterna estado a cada batida
-    isActive = !isActive;
+    // alterna input habilitado
+    inputEnabled = !inputEnabled;
     updateUIState();
 
-    if (isActive) {
-      synth.triggerAttackRelease("C2", "8n");
-      zona.style.animation = "pulse 0.4s ease";
-      setTimeout(() => (zona.style.animation = "none"), 400);
-      startTime = performance.now();
-      animateBolinha();
-    } else {
-      // pode colocar algo para indicar pausa se quiser
-      cancelAnimationFrame(animationFrameId); // para a bolinha
-      bolinha.style.left = "0px"; // reset posição bolinha
-      feedback.textContent = ""; // limpa feedback
-    }
+    synth.triggerAttackRelease("C2", "8n");
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => (zona.style.animation = "none"), 400);
+
+    startTime = performance.now();
+    animateBolinha();
   }, duration);
 }
 
 function updateUIState() {
-  if (isActive) {
-    barra.style.opacity = "1";
-  } else {
-    barra.style.opacity = "0.6";
-  }
+  barra.style.opacity = inputEnabled ? "1" : "0.6";
 }
 
 function animateBolinha() {
@@ -67,7 +56,7 @@ function animateBolinha() {
     const x = percent * (barraWidth - bolinhaWidth);
     bolinha.style.left = `${x}px`;
 
-    if (percent < 1 && isActive) {
+    if (percent < 1) {
       animationFrameId = requestAnimationFrame(frame);
     }
   }
@@ -75,9 +64,8 @@ function animateBolinha() {
   requestAnimationFrame(frame);
 }
 
-// Evento para checar tecla espaço
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && isActive) {
+  if (e.code === "Space" && inputEnabled) {
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
     const zonaStart = 280;
     const zonaWidth = 70;

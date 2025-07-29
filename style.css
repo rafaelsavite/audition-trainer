@@ -33,7 +33,7 @@ body {
   position: absolute; /* Posicionamento absoluto dentro da #barra */
   width: 60px; /* Largura da zona "perfect" */
   height: 100%; /* Altura igual à barra */
-  left: 85%; /* Posiciona a zona na marca de 85% da barra */
+  left: calc(85% / 2); /* Posiciona a zona na marca de 85% da barra */
   transform: translateX(-50%); /* Ajusta o posicionamento para centralizar a zona nessa posição */
   background: radial-gradient(circle, #00d0ff, #0066cc); /* Gradiente radial azul claro para escuro */
   border-radius: 10px; /* Bordas arredondadas da zona */

@@ -59,7 +59,7 @@ document.addEventListener("keydown", (e) => {
   if (e.code === "Space") { // Se for barra de espaço
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2; // Centro da bolinha
     const zonaStart = 280; // Left da barra azul (px)
-    const zonaWidth = 190; // Largura da barra azul (px)
+    const zonaWidth = 70; // Largura da barra azul (px)
     const zonaCenter = zonaStart + zonaWidth / 2; // Centro da zona perfect
 
     const diff = Math.abs(bolinhaCenter - zonaCenter); // Diferença entre bolinha e zona

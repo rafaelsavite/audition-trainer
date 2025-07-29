@@ -21,10 +21,27 @@ body {
 /* Mensagem de boas-vindas no topo */
 #welcome-msg {
   font-size: 1.8rem;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
   text-align: center;
   color: #3af;
   text-shadow: 0 0 10px #3af;
+}
+
+/* Label BPM */
+label {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+/* Input BPM */
+#bpmInput {
+  width: 70px;
+  font-size: 1.2rem;
+  padding: 5px;
+  margin-left: 5px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
 }
 
 /* Container da barra */
@@ -36,7 +53,7 @@ body {
   position: relative;
   box-shadow: 0 0 15px #000;
   overflow: hidden;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 }
 
 /* Barra principal */
@@ -44,6 +61,8 @@ body {
   width: 100%;
   height: 100%;
   position: relative;
+  opacity: 1;
+  transition: opacity 0.5s ease;
 }
 
 /* Zona "Perfect" azul */
@@ -63,10 +82,10 @@ body {
 #bolinha {
   position: absolute;
   top: 5px;
-  width: 30px;
+  width: 40px; /* aumentei para ficar maior */
   height: 40px;
   background-color: red;
-  border-radius: 15px;
+  border-radius: 20px;
   box-shadow: 0 0 15px red;
   left: 0;
   transition: left linear;
@@ -81,12 +100,10 @@ body {
   min-height: 3rem; /* Para evitar salto na UI */
   user-select: none;
   pointer-events: none;
-  /* Vamos animar a opacidade para sumir depois */
   opacity: 0;
   transition: opacity 0.6s ease;
 }
 
-/* Cores para cada resultado */
 .perfect {
   color: #3af; /* azul */
   text-shadow: 0 0 10px #3af;
@@ -109,7 +126,13 @@ body {
 
 .miss {
   color: #888; /* cinza escuro */
-  text-shadow: none;
+}
+
+/* Contador BPM */
+#bpmDisplay {
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
 }
 
 /* Botão redondo "Espaço" no canto inferior direito */

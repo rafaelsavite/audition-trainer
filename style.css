@@ -35,7 +35,7 @@ body {
 /* Zona "Perfect", onde o usuário deve acertar */
 #zona-perfect {
   position: absolute; /* Posicionada dentro da barra */
-  width: 60px; /* Largura da zona perfect */
+  width: 90px; /* Largura da zona perfect */
   height: 100%; /* Altura igual à barra */
   left: calc(280px + 35px); /* Início da barra azul + metade da largura da barra azul */
   transform: translateX(-50%); /* Centraliza horizontalmente na posição */

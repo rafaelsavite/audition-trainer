@@ -1,14 +1,17 @@
 // Configurações iniciais
-let bpm = 120; // batidas por minuto
-let duration = 60000 / bpm; // duração de cada batida em ms
+let bpm = 120; // batidas por minuto padrão
+let duration = 60000 / bpm; // duração da batida em ms
 
-// Elementos DOM
+// Seleção dos elementos DOM
 const bolinha = document.getElementById("bolinha");
 const zona = document.getElementById("zona-perfect");
 const barra = document.getElementById("barra");
 const feedback = document.getElementById("feedback");
 const botaoEspaco = document.getElementById("botaoEspaco");
+const bpmInput = document.getElementById("bpmInput");
+const bpmDisplay = document.getElementById("bpmDisplay");
 
+// Tamanhos fixos para cálculos
 const barraWidth = 400;
 const bolinhaWidth = 30;
 
@@ -16,16 +19,23 @@ let animationFrameId;
 let intervalId;
 
 let perfectStreak = 0; // contador de perfects seguidos
-let roundActive = true; // controla se está na rodada que aceita espaço
+let roundActive = true; // controla se pode apertar espaço (true) ou está em pausa (false)
 
-// Inicializa Tone.js sintetizadores para sons
+// Criação de sintetizadores para cada tipo de som (Tone.js)
 const synthPerfect = new Tone.MembraneSynth().toDestination();
 const synthGreat = new Tone.MembraneSynth().toDestination();
 const synthCool = new Tone.MembraneSynth().toDestination();
 const synthBad = new Tone.MembraneSynth().toDestination();
 const synthMiss = new Tone.MembraneSynth().toDestination();
 
-// Função para animar a bolinha da esquerda para direita numa duração definida
+// Atualiza duração com base no BPM e exibe na tela
+function updateDuration() {
+  bpm = parseInt(bpmInput.value) || 120;
+  duration = 60000 / bpm;
+  bpmDisplay.textContent = `BPM: ${bpm}`;
+}
+
+// Função que anima a bolinha da esquerda para a direita
 function animateBolinha() {
   const start = performance.now();
 
@@ -34,7 +44,7 @@ function animateBolinha() {
     let percent = elapsed / duration;
     if (percent > 1) percent = 1;
 
-    // calcula posição da bolinha
+    // Calcula posição atual da bolinha (em px)
     const x = percent * (barraWidth - bolinhaWidth);
     bolinha.style.left = `${x}px`;
 
@@ -46,73 +56,61 @@ function animateBolinha() {
   animationFrameId = requestAnimationFrame(frame);
 }
 
-// Função que inicia uma rodada
+// Função que inicia uma rodada (movimento da bolinha)
 function startRound() {
   roundActive = true;
+  updateDuration();
 
-  // Recomeça a animação da bolinha
   animateBolinha();
 
-  // Define tempo para encerrar a rodada e iniciar pausa
+  // Quando a rodada acabar, ativa a pausa (opacidade 0.7)
   intervalId = setTimeout(() => {
     roundActive = false;
-
-    // Deixa barra, bolinha e zona com 70% de opacidade na pausa
     barra.style.opacity = "0.7";
     bolinha.style.opacity = "0.7";
     zona.style.opacity = "0.7";
 
-    // Pausa visual, duração de 1 segundo antes da próxima rodada
+    // Depois de 1s de pausa, retorna à opacidade normal e inicia nova rodada
     setTimeout(() => {
       barra.style.opacity = "1";
       bolinha.style.opacity = "1";
       zona.style.opacity = "1";
 
-      startRound(); // reinicia a próxima rodada
+      startRound();
     }, 1000);
   }, duration);
 }
 
-// Função para mostrar feedback (texto e cor) com animação suave
+// Mostra feedback colorido com fade out
 function showFeedback(text, classe) {
   feedback.textContent = text;
-  feedback.className = classe; // aplica cor via classe
-
+  feedback.className = classe;
   feedback.style.opacity = "1";
 
-  // Desaparece após 0.8s
   setTimeout(() => {
     feedback.style.opacity = "0";
   }, 800);
 }
 
-// Função para tocar sons com base no resultado
+// Toca som conforme resultado
 function playSound(result) {
   switch (result) {
-    case "PERFECT":
-      synthPerfect.triggerAttackRelease("C2", "8n");
-      break;
-    case "GREAT":
-      synthGreat.triggerAttackRelease("E2", "8n");
-      break;
-    case "COOL":
-      synthCool.triggerAttackRelease("G2", "8n");
-      break;
-    case "BAD":
-      synthBad.triggerAttackRelease("A1", "8n");
-      break;
-    case "MISS":
-      synthMiss.triggerAttackRelease("C1", "8n");
-      break;
+    case "PERFECT": synthPerfect.triggerAttackRelease("C2", "8n"); break;
+    case "GREAT": synthGreat.triggerAttackRelease("E2", "8n"); break;
+    case "COOL": synthCool.triggerAttackRelease("G2", "8n"); break;
+    case "BAD": synthBad.triggerAttackRelease("A1", "8n"); break;
+    case "MISS": synthMiss.triggerAttackRelease("C1", "8n"); break;
   }
 }
 
-// Função que verifica o timing quando o usuário aperta espaço ou clica no botão
+// Checa o acerto ao apertar espaço ou clicar botão
 function checkHit() {
-  if (!roundActive) return; // ignora se está na pausa
+  if (!roundActive) return; // ignora durante pausa
 
+  // Centro da bolinha e da zona "perfect"
   const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
   const zonaCenter = zona.offsetLeft + zona.offsetWidth / 2;
+
   const diff = Math.abs(bolinhaCenter - zonaCenter);
 
   let result = "";
@@ -122,14 +120,11 @@ function checkHit() {
   else if (diff < 80) result = "BAD";
   else result = "MISS";
 
-  // Contador de perfects seguidos
-  if (result === "PERFECT") {
-    perfectStreak++;
-  } else {
-    perfectStreak = 0;
-  }
+  // Atualiza contador de perfect seguidos
+  if (result === "PERFECT") perfectStreak++;
+  else perfectStreak = 0;
 
-  // Mostra a mensagem de feedback
+  // Exibe mensagem com contador se tiver streak
   if (result === "PERFECT" && perfectStreak > 1) {
     showFeedback(`Perfect x${perfectStreak}`, "perfect");
   } else {
@@ -139,7 +134,7 @@ function checkHit() {
   playSound(result);
 }
 
-// Event listener para tecla espaço
+// Eventos para apertar espaço ou clicar no botão
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
     e.preventDefault();
@@ -147,13 +142,17 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// Event listener para clique no botão espaço (mobile)
 botaoEspaco.addEventListener("click", () => {
   checkHit();
 });
 
-// Inicializa Tone.js (exigido em alguns navegadores)
+// Atualiza duração ao mudar BPM no input
+bpmInput.addEventListener("input", () => {
+  updateDuration();
+});
+
+// Inicializa Tone.js e inicia o treino
 Tone.start().then(() => {
-  // Inicia a primeira rodada ao carregar o jogo
+  updateDuration();
   startRound();
 });

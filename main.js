@@ -1,132 +1,173 @@
 // Variáveis iniciais
-let bpm = 120; // Batidas por minuto iniciais
-let intervalId; // ID do intervalo para controle do loop
-let animationFrameId; // ID da animação da bolinha
-let bolinha = document.getElementById("bolinha"); // Elemento bolinha
-let zona = document.getElementById("zona-perfect"); // Elemento zona perfect
-let barra = document.getElementById("barra"); // Elemento barra principal
-let barraWidth = 400; // Largura total da barra (px)
-let bolinhaWidth = 30; // Largura da bolinha (px)
-let startTime = 0; // Tempo início da animação
-let duration = 0; // Duração de cada batida em ms
+let bpm = 120;
+let intervalId;
+let animationFrameId;
+let bolinha = document.getElementById("bolinha");
+let zona = document.getElementById("zona-perfect");
+let barra = document.getElementById("barra");
+let barraWidth = 400;
+let bolinhaWidth = 30;
+let startTime = 0;
+let duration = 0;
 
-// Criar sintetizadores para cada tipo de resultado
-const synthPerfect = new Tone.MembraneSynth({
-  pitchDecay: 0.05,
-  octaves: 10,
-  oscillator: { type: "sine" },
-  envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 1 }
-}).toDestination();
+// Criar efeitos globais
+const reverb = new Tone.Reverb({ decay: 1.5, wet: 0.3 }).toDestination();
+const distortion = new Tone.Distortion(0.3).toDestination();
 
-const synthGreat = new Tone.MembraneSynth({
-  pitchDecay: 0.07,
-  octaves: 8,
+// SINTETIZADORES COMBINADOS POR RESULTADO
+
+// PERFECT - synth + ruído branco para impacto
+const perfectSynth = new Tone.MonoSynth({
+  oscillator: { type: "sawtooth" },
+  envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.1 },
+  filterEnvelope: { attack: 0.001, decay: 0.2, baseFrequency: 1200, octaves: 3 }
+});
+const perfectNoise = new Tone.NoiseSynth({
+  noise: { type: "white" },
+  envelope: { attack: 0.001, decay: 0.1, sustain: 0 }
+});
+// conectar ao efeito
+perfectSynth.chain(distortion, reverb);
+perfectNoise.chain(distortion, reverb);
+
+function playPerfect() {
+  perfectSynth.triggerAttackRelease("C5", "16n");
+  perfectNoise.triggerAttackRelease("16n");
+}
+
+// GREAT - synth suave com reverb
+const greatSynth = new Tone.MonoSynth({
   oscillator: { type: "triangle" },
-  envelope: { attack: 0.002, decay: 0.12, sustain: 0, release: 1 }
-}).toDestination();
+  envelope: { attack: 0.005, decay: 0.2, sustain: 0, release: 0.15 },
+  filterEnvelope: { attack: 0.002, decay: 0.25, baseFrequency: 800, octaves: 2 }
+});
+greatSynth.chain(reverb);
 
-const synthCool = new Tone.MembraneSynth({
+function playGreat() {
+  greatSynth.triggerAttackRelease("E4", "16n");
+}
+
+// COOL - synth mais simples, sem ruído
+const coolSynth = new Tone.MembraneSynth({
   pitchDecay: 0.1,
   octaves: 5,
   oscillator: { type: "triangle" },
-  envelope: { attack: 0.005, decay: 0.15, sustain: 0, release: 1 }
+  envelope: { attack: 0.005, decay: 0.15, sustain: 0, release: 0.1 }
 }).toDestination();
 
-const synthBad = new Tone.MembraneSynth({
-  pitchDecay: 0.2,
-  octaves: 3,
+function playCool() {
+  coolSynth.triggerAttackRelease("G3", "16n");
+}
+
+// BAD - synth com timbre mais áspero e distorção leve
+const badSynth = new Tone.MonoSynth({
   oscillator: { type: "square" },
-  envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 1 }
-}).toDestination();
+  envelope: { attack: 0.01, decay: 0.25, sustain: 0, release: 0.2 },
+  filterEnvelope: { attack: 0.01, decay: 0.3, baseFrequency: 400, octaves: 1 }
+});
+badSynth.chain(distortion);
 
-const synthMiss = new Tone.MembraneSynth({
-  pitchDecay: 0.3,
-  octaves: 2,
-  oscillator: { type: "sawtooth" },
-  envelope: { attack: 0.02, decay: 0.3, sustain: 0, release: 1 }
-}).toDestination();
+function playBad() {
+  badSynth.triggerAttackRelease("D3", "16n");
+}
+
+// MISS - som curto, baixo e com ruído escuro
+const missSynth = new Tone.MonoSynth({
+  oscillator: { type: "sine" },
+  envelope: { attack: 0.02, decay: 0.4, sustain: 0, release: 0.3 },
+  filterEnvelope: { attack: 0.01, decay: 0.5, baseFrequency: 200, octaves: 1 }
+});
+const missNoise = new Tone.NoiseSynth({
+  noise: { type: "brown" },
+  envelope: { attack: 0.02, decay: 0.3, sustain: 0 }
+});
+missSynth.chain(distortion);
+missNoise.chain(distortion);
+
+function playMiss() {
+  missSynth.triggerAttackRelease("A2", "8n");
+  missNoise.triggerAttackRelease("16n");
+}
 
 // Função para iniciar o treino
 function startTraining() {
-  bpm = parseInt(document.getElementById("bpm").value); // Pega bpm do input
-  duration = 60000 / bpm; // Converte bpm para duração em milissegundos
+  bpm = parseInt(document.getElementById("bpm").value);
+  duration = 60000 / bpm;
 
-  Tone.start(); // Inicializa o Tone.js para garantir som
+  Tone.start();
 
-  clearInterval(intervalId); // Para intervalo anterior
-  cancelAnimationFrame(animationFrameId); // Para animação anterior
+  clearInterval(intervalId);
+  cancelAnimationFrame(animationFrameId);
 
-  // Inicia o loop das batidas
   intervalId = setInterval(() => {
-    synthPerfect.triggerAttackRelease("C2", "8n"); // Toca som da batida
-    zona.style.animation = "pulse 0.4s ease"; // Animação pulse na zona perfect
-    setTimeout(() => zona.style.animation = "none", 400); // Remove animação para reiniciar no próximo ciclo
-    startTime = performance.now(); // Registra tempo atual
-    animateBolinha(); // Inicia animação da bolinha
+    // Pode usar o som da batida padrão
+    perfectSynth.triggerAttackRelease("C2", "8n");
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => zona.style.animation = "none", 400);
+    startTime = performance.now();
+    animateBolinha();
   }, duration);
 }
 
-// Função que anima a bolinha da esquerda para direita na barra
+// Função para animar bolinha
 function animateBolinha() {
-  const start = performance.now(); // Marca início da animação
+  const start = performance.now();
 
-  // Função chamada a cada frame (~60fps)
   function frame(now) {
-    let elapsed = now - start; // Tempo decorrido
-    let percent = elapsed / duration; // Progresso da animação (0 a 1)
-    if (percent > 1) percent = 1; // Limita a 100%
+    let elapsed = now - start;
+    let percent = elapsed / duration;
+    if (percent > 1) percent = 1;
 
-    const x = percent * (barraWidth - bolinhaWidth); // Calcula posição horizontal
-    bolinha.style.left = `${x}px`; // Atualiza posição da bolinha
+    const x = percent * (barraWidth - bolinhaWidth);
+    bolinha.style.left = `${x}px`;
 
     if (percent < 1) {
-      animationFrameId = requestAnimationFrame(frame); // Continua animando
+      animationFrameId = requestAnimationFrame(frame);
     }
   }
 
-  requestAnimationFrame(frame); // Começa animação
+  requestAnimationFrame(frame);
 }
 
-// Evento que inicia o treino ao clicar no botão
+// Evento para iniciar treino
 document.getElementById("startBtn").addEventListener("click", startTraining);
 
-// Evento que detecta tecla pressionada para checar timing e tocar sons
+// Evento para detectar espaço e tocar sons com impacto conforme resultado
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") { // Se for barra de espaço
-    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2; // Centro da bolinha
-    const zonaStart = 280; // Left da barra azul (px)
-    const zonaWidth = 70; // Largura da barra azul (px)
-    const zonaCenter = zonaStart + zonaWidth / 2; // Centro da zona perfect
+  if (e.code === "Space") {
+    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
+    const zonaStart = 280;
+    const zonaWidth = 70;
+    const zonaCenter = zonaStart + zonaWidth / 2;
 
-    const diff = Math.abs(bolinhaCenter - zonaCenter); // Diferença entre bolinha e zona
+    const diff = Math.abs(bolinhaCenter - zonaCenter);
 
-    let result; // Variável resultado
+    let result;
 
-    // Avalia precisão baseado na distância
     if (diff < 15) result = "💯 PERFECT";
     else if (diff < 35) result = "🔥 GREAT";
     else if (diff < 55) result = "😐 COOL";
     else if (diff < 80) result = "❌ BAD";
     else result = "💀 MISS";
 
-    document.getElementById("feedback").textContent = result; // Mostra resultado
+    document.getElementById("feedback").textContent = result;
 
-    // Tocar som correspondente
+    // Tocar som baseado no resultado
     switch(result) {
       case "💯 PERFECT":
-        synthPerfect.triggerAttackRelease("C4", "16n");
+        playPerfect();
         break;
       case "🔥 GREAT":
-        synthGreat.triggerAttackRelease("E4", "16n");
+        playGreat();
         break;
       case "😐 COOL":
-        synthCool.triggerAttackRelease("G3", "16n");
+        playCool();
         break;
       case "❌ BAD":
-        synthBad.triggerAttackRelease("D3", "16n");
+        playBad();
         break;
       case "💀 MISS":
-        synthMiss.triggerAttackRelease("A2", "16n");
+        playMiss();
         break;
     }
   }

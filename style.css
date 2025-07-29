@@ -1,61 +1,68 @@
-/* Container principal da barra onde a bolinha se movimenta */
-#barra {
-  position: relative; /* Para posicionar elementos filhos com position absolute em relação a ela */
-  width: 400px; /* Largura total da barra */
-  height: 30px; /* Altura da barra */
-  background: linear-gradient(90deg, #666666, #999999); /* Fundo degradê cinza escuro para cinza claro */
-  border-radius: 15px; /* Bordas arredondadas para visual mais suave */
-  margin: 20px 0; /* Espaço vertical (em cima e embaixo) */
-  overflow: hidden; /* Esconde qualquer conteúdo que ultrapasse os limites da barra */
+let bpm = 120;
+let intervalId;
+let animationFrameId;
+let bolinha = document.getElementById("bolinha");
+let zona = document.getElementById("zona-perfect");
+let barra = document.getElementById("barra");
+let barraWidth = 500;
+let bolinhaWidth = 30;
+let startTime = 0;
+let duration = 0;
+
+function startTraining() {
+  bpm = parseInt(document.getElementById("bpm").value);
+  duration = 60000 / bpm;
+
+  Tone.start();
+  const synth = new Tone.MembraneSynth().toDestination();
+
+  clearInterval(intervalId);
+  cancelAnimationFrame(animationFrameId);
+
+  // Piscar no BPM
+  intervalId = setInterval(() => {
+    synth.triggerAttackRelease("C2", "8n");
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => zona.style.animation = "none", 400);
+    startTime = performance.now();
+    animateBolinha();
+  }, duration);
 }
 
-/* Zona perfeita: área alvo para acertar o timing */
-#zona-perfect {
-  position: absolute; /* Posicionada dentro da barra usando coordenadas relativas */
-  width: 60px; /* Largura da zona perfeita (área azul) */
-  height: 100%; /* Altura igual à barra inteira */
-  left: 300px; /* Distância da borda esquerda da barra (posição fixa) */
-  transform: translateX(-50%); /* Centraliza o elemento horizontalmente em relação ao ponto left */
-  background: radial-gradient(circle, #00d0ff, #0066cc); /* Degradê radial azul brilhante ao escuro */
-  border-radius: 10px; /* Bordas arredondadas para suavizar a zona */
-  opacity: 0.6; /* Transparência para deixar a barra visível por trás */
-  z-index: 1; /* Posiciona a zona acima da barra, mas abaixo da bolinha */
-}
+function animateBolinha() {
+  const start = performance.now();
 
-/* Bolinha que se move na barra sincronizada com o bpm */
-#bolinha {
-  position: absolute; /* Posicionada dentro da barra */
-  top: 0; /* Alinhada ao topo da barra */
-  left: 0; /* Começa na extremidade esquerda da barra */
-  width: 30px; /* Largura da bolinha */
-  height: 30px; /* Altura da bolinha (tamanho quadrado para círculo) */
-  background: linear-gradient(90deg, #00ffff, #004466); /* Degradê azul claro para azul escuro */
-  border-radius: 50%; /* Deixa o elemento circular */
-  box-shadow: 0 0 10px #00ffff; /* Sombra azul brilhante para destaque */
-  z-index: 2; /* Posiciona a bolinha acima da zona e da barra */
-  transition: left 0.1s ease-out; /* Transição suave ao mover a bolinha na horizontal */
-}
+  function frame(now) {
+    let elapsed = now - start;
+    let percent = elapsed / duration;
+    if (percent > 1) percent = 1;
 
-/* Feedback textual para o usuário com o resultado do timing */
-#feedback {
-  margin-top: 10px; /* Espaço acima do texto */
-  font-size: 1.5em; /* Texto maior para visibilidade */
-  font-weight: bold; /* Texto em negrito */
-  height: 40px; /* Altura fixa para evitar pulo do layout quando o texto muda */
-  color: #333; /* Cor do texto (cinza escuro) */
-  text-align: center; /* Centraliza o texto */
-  user-select: none; /* Impede o usuário de selecionar o texto */
-}
+    const x = percent * (barraWidth - bolinhaWidth);
+    bolinha.style.left = `${x}px`;
 
-/* Animação que cria um efeito de "pulse" (brilho pulsante) na zona perfeita */
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 10px #00d0ff, 0 0 20px #00d0ff; /* Sombra inicial azul moderada */
+    if (percent < 1) {
+      animationFrameId = requestAnimationFrame(frame);
+    }
   }
-  50% {
-    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff; /* Sombra mais intensa e maior */
-  }
-  100% {
-    box-shadow: 0 0 10px #00d0ff, 0 0 20px #00d0ff; /* Retorna à sombra inicial */
-  }
+
+  requestAnimationFrame(frame);
 }
+
+document.getElementById("startBtn").addEventListener("click", startTraining);
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    const bolinhaLeft = bolinha.offsetLeft + bolinhaWidth / 2;
+    const perfectCenter = barra.offsetLeft + barraWidth / 2;
+    const diff = Math.abs(bolinhaLeft - perfectCenter);
+
+    let result;
+    if (diff < 5) result = "💯 PERFECT";
+    else if (diff < 15) result = "🔥 GREAT";
+    else if (diff < 30) result = "😐 COOL";
+    else if (diff < 50) result = "❌ BAD";
+    else result = "💀 MISS";
+
+    document.getElementById("feedback").textContent = result;
+  }
+});

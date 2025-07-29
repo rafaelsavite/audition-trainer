@@ -1,82 +1,79 @@
-/* Estilo geral da página */
 body {
-  font-family: Arial, sans-serif; /* Fonte principal */
-  background: #111; /* Fundo escuro */
-  color: white; /* Texto branco */
-  text-align: center; /* Centraliza conteúdo */
-  padding-top: 40px; /* Espaço no topo */
+  background-color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  flex-direction: column;
 }
 
-/* Barra principal onde a bolinha e barra azul ficam */
-#barra {
-  position: relative; /* Para posicionamento absoluto dos filhos */
-  width: 400px; /* Largura total da barra */
-  height: 20px; /* Altura da barra */
-  margin: 50px auto; /* Espaçamento vertical e centralização horizontal */
-  background: #000; /* Fundo preto da barra */
-  border-radius: 15px; /* Bordas arredondadas */
-  overflow: hidden; /* Esconde conteúdo que ultrapassar a barra */
-  box-shadow: 0 0 8px #333 inset; /* Sombra interna para profundidade */
+.barra-container {
+  width: 400px;
+  height: 20px;
+  background-color: #333;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 10px #000;
 }
 
-/* Barrinha azul que representa a zona de timing ideal */
-#barra-azul {
-  position: absolute; /* Posicionada dentro da barra principal */
-  top: 0; /* Alinhada ao topo da barra */
-  left: 280px; /* Posicionada a 280px da esquerda (70% da barra) */
-  width: 70px; /* Largura fixa da barra azul */
-  height: 100%; /* Ocupa toda altura da barra */
-  background: linear-gradient(90deg, #3399ff, #005bb5); /* Gradiente azul */
-  border-radius: 15px 0 0 15px; /* Bordas arredondadas só do lado esquerdo */
-  opacity: 0.4; /* Transparência suave */
-  z-index: 0; /* Fica atrás da zona-perfect e bolinha */
+.barra {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
-/* Zona "Perfect", onde o usuário deve acertar */
-#zona-perfect {
-  position: absolute; /* Posicionada dentro da barra */
-  width: 90px; /* Largura da zona perfect */
-  height: 100%; /* Altura igual à barra */
-  left: calc(280px + 35px); /* Início da barra azul + metade da largura da barra azul */
-  transform: translateX(-50%); /* Centraliza horizontalmente na posição */
-  background: radial-gradient(circle, #00d0ff, #0066cc); /* Gradiente radial azul */
-  border-radius: 10px; /* Bordas arredondadas */
-  opacity: 0.6; /* Transparência */
-  animation: none; /* Sem animação padrão */
-  z-index: 1; /* Fica acima da barra azul */
+.alvo {
+  width: 70px;
+  height: 100%;
+  background-color: #00f;
+  position: absolute;
+  left: 80%;
+  transform: translateX(-50%);
+  border-radius: 5px;
 }
 
-/* Animação pulse usada na zona-perfect ao bater a batida */
-@keyframes pulse {
-  0% {
-    opacity: 0.9;
-    transform: translateX(-50%) scale(1.3);
+.indicador {
+  width: 10px;
+  height: 100%;
+  background-color: red;
+  position: absolute;
+  left: 0;
+  border-radius: 5px;
+  animation: mover 2s linear infinite;
+}
+
+@keyframes mover {
+  from {
+    left: 0;
   }
-  50% {
-    opacity: 0.3;
-    transform: translateX(-50%) scale(1);
-  }
-  100% {
-    opacity: 0.9;
-    transform: translateX(-50%) scale(1.3);
+  to {
+    left: 100%;
   }
 }
 
-/* Bolinha vermelha que se move na barra */
-#bolinha {
-  position: absolute; /* Posicionada dentro da barra */
-  top: -5px; /* Ajuste para centralizar verticalmente */
-  width: 30px; /* Largura da bolinha */
-  height: 30px; /* Altura da bolinha */
-  background: red; /* Cor vermelha */
-  border-radius: 50%; /* Circulo perfeito */
-  left: 0; /* Começa no canto esquerdo */
-  transition: left 0s; /* Movimento sem atraso */
-  z-index: 2; /* Sempre acima da barra e zona */
+/* Botão "Espaço" para celular */
+#botaoEspaco {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 80px;
+  height: 80px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  z-index: 999;
+  transition: transform 0.1s ease;
 }
 
-/* Feedback visual do resultado do timing */
-#feedback {
-  margin-top: 40px; /* Espaço acima */
-  font-size: 2em; /* Texto maior */
+#botaoEspaco:active {
+  transform: scale(0.95);
+  background-color: #0056b3;
 }

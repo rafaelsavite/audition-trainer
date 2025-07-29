@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,23 +7,11 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Bem-vindo ao Treinador de Combos do Audition</h1>
-
-  <label>
-    BPM:
-    <input type="number" id="bpm" value="120" min="60" max="300"/>
-  </label>
-  <button id="startBtn">Começar</button>
-
-  <div id="barra">
+  <div id="barra-container">
     <div id="zona-perfect"></div>
     <div id="bolinha"></div>
   </div>
-
-  <div id="feedback"></div>
-  <div id="perfect-streak">Perfect x0</div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+  <div id="resultado"></div>
   <script src="main.js"></script>
 </body>
 </html>

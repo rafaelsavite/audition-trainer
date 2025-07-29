@@ -16,6 +16,8 @@
             --cool: #00d4ff;
             --bad: #ff66aa;
             --miss: #ff0000;
+            --combo-glow: #ffd700;
+            --background-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
         }
 
         * {
@@ -30,7 +32,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: var(--background-gradient);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
             padding: 20px;
@@ -73,7 +75,6 @@
             margin: 0 auto;
         }
 
-        /* --- TRACK PRINCIPAL --- */
         .track-container {
             width: 100%;
             height: 55px;
@@ -87,28 +88,48 @@
             transition: opacity 0.3s;
         }
 
-        /* Classe para rodada de espera */
         .wait-round {
-            opacity: 0.5;
+            opacity: 0.3;
         }
 
-        /* --- PERFECT ZONE (barrinha azul) - 30% MAIOR --- */
+        /* ZONA PERFEITA COM GRADIENTE COMPLETO E GLOW */
         .perfect-zone {
-            width: 13%;
-            min-width: 50px;
-            height: 80%;
-            background: linear-gradient(to bottom, var(--perfect-zone), #0066ff);
+            width: 20%; /* Aumentada em 25% */
+            min-width: 90px; /* Aumentada proporcionalmente */
+            height: 90%; /* Aumentada em 15% */
+            background: radial-gradient(
+                circle at center,
+                #00f7ff,      /* Azul muito claro no centro */
+                #00c3ff 30%,  /* Azul claro */
+                #0088ff 60%,  /* Azul médio */
+                #0055ff       /* Azul escuro nas bordas */
+            );
             border-radius: 12px;
             position: absolute;
             top: 50%;
             left: 80%;
             transform: translate(-50%, -50%);
-            box-shadow: 0 0 15px rgba(0, 162, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 0 25px rgba(0, 199, 255, 0.8), 
+                inset 0 0 15px rgba(255, 255, 255, 0.5);
             transition: all 0.1s;
             z-index: 2;
+            animation: pulse 2s infinite alternate;
         }
 
-        /* --- MARKER (bolinha vermelha) --- */
+        @keyframes pulse {
+            0% {
+                box-shadow: 
+                    0 0 20px rgba(0, 199, 255, 0.8), 
+                    inset 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+            100% {
+                box-shadow: 
+                    0 0 35px rgba(0, 231, 255, 0.9), 
+                    inset 0 0 20px rgba(255, 255, 255, 0.7);
+            }
+        }
+
         .marker {
             width: 35px;
             height: 35px;
@@ -137,7 +158,6 @@
             box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
         }
 
-        /* --- JUDGMENT TEXT --- */
         .judgment-text {
             position: absolute;
             width: 100%;
@@ -159,7 +179,6 @@
         .bad { color: var(--bad); }
         .miss { color: var(--miss); }
 
-        /* --- CONTROLS --- */
         .controls {
             display: flex;
             justify-content: center;
@@ -217,7 +236,6 @@
             color: #FFD700;
         }
 
-        /* --- STATS --- */
         .stats {
             display: flex;
             justify-content: center;
@@ -254,7 +272,6 @@
             text-shadow: 0 0 8px currentColor;
         }
 
-        /* --- COMBO --- */
         .combo-display {
             font-size: 80px;
             text-align: center;
@@ -269,9 +286,11 @@
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* --- EFEITOS VISUAIS --- */
         .marker-glow {
             position: absolute;
             width: 60px;
@@ -342,6 +361,61 @@
             color: #888;
             font-size: 14px;
         }
+        
+        .feedback-display {
+            font-size: 60px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .feedback-perfect {
+            color: #00a2ff;
+            text-shadow: 0 0 20px rgba(0, 162, 255, 0.9);
+            font-size: 70px;
+        }
+        
+        .feedback-great {
+            color: #4CAF50;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.9);
+        }
+        
+        .feedback-cool {
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.9);
+        }
+        
+        .feedback-bad {
+            color: #ff66aa;
+            text-shadow: 0 0 20px rgba(255, 102, 170, 0.9);
+        }
+        
+        .feedback-miss {
+            color: #ff0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+        }
+        
+        .combo-text {
+            font-size: 30px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            margin-left: 15px;
+            vertical-align: middle;
+        }
+        
+        .feedback-show {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
         @media (max-width: 700px) {
             .game-container {
@@ -368,7 +442,8 @@
             }
             
             .perfect-zone { 
-                height: 75%; 
+                height: 85%; 
+                width: 17%;
             }
             
             .stat-box { 
@@ -390,17 +465,32 @@
                 width: 90px;
                 font-size: 16px;
             }
+            
+            .feedback-display {
+                font-size: 40px;
+                height: 60px;
+            }
+            
+            .feedback-perfect {
+                font-size: 50px;
+            }
+            
+            .combo-text {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
         <div class="header">
-            <h1>Audition Perfect Trainer</h1>
+            <h1>Audition Perfect Trainer PRO</h1>
             <p>Treine seu timing para acertar PERFECTs e dominar o jogo!</p>
         </div>
         
-        <div class="combo-display" id="combo">0</div>
+        <div class="feedback-display" id="feedbackDisplay"></div>
+        
+        <div class="combo-display" id="comboDisplay">0</div>
         
         <div class="bpm-control">
             <label for="bpm">BPM:</label>
@@ -464,8 +554,9 @@
     </div>
 
     <script>
-        // ========== ELEMENTOS DO DOM ========== //
-        const comboDisplay = document.getElementById('combo');
+        // Elementos do DOM
+        const feedbackDisplay = document.getElementById('feedbackDisplay');
+        const comboDisplay = document.getElementById('comboDisplay');
         const marker = document.getElementById('marker');
         const perfectZone = document.getElementById('perfectZone');
         const startBtn = document.getElementById('startBtn');
@@ -478,7 +569,7 @@
         const particlesContainer = document.getElementById('particles');
         const trackContainer = document.getElementById('trackContainer');
         
-        // Contadores
+        // Elementos de contagem
         const perfectCount = document.getElementById('perfectCount');
         const greatCount = document.getElementById('greatCount');
         const coolCount = document.getElementById('coolCount');
@@ -486,7 +577,7 @@
         const missCount = document.getElementById('missCount');
         const maxCombo = document.getElementById('maxCombo');
 
-        // ========== VARIÁVEIS DO JOGO ========== //
+        // Variáveis do jogo
         let combo = 0;
         let perfects = 0;
         let greats = 0;
@@ -495,16 +586,15 @@
         let misses = 0;
         let highestCombo = 0;
         let isRunning = false;
-        let currentBpm = 60; // Valor padrão 60 BPM
+        let currentBpm = 60;
         let animationId = null;
         let perfectCenterX = 0;
         let trackWidth = 0;
         let speed = 0;
-        let perfectStreak = 0; // Contador de PERFECTs consecutivos
-        let isActiveRound = true; // Controla se a rodada atual é ativa (pode acertar) ou de espera
+        let perfectStreak = 0;
+        let isActiveRound = true;
 
-        // ========== SONS PERSONALIZADOS ========== //
-        // Nomes dos arquivos de som conforme solicitado
+        // Sons
         const sounds = {
             bad: new Audio('effect_b.wav'),
             cool: new Audio('effect_c.wav'),
@@ -512,74 +602,59 @@
             perfect_normal: new Audio('effect_p1.wav'),
             perfect_combo: new Audio('effect_p2.wav'),
             perfect_advanced: new Audio('effect_a.wav'),
-            miss: new Audio('effect_m.wav') // Som de MISS corrigido
+            miss: new Audio('effect_m.wav')
         };
 
-        // ========== CONFIGURAÇÃO DO BPM ========== //
+        // Configura o BPM
         function setBpm() {
             currentBpm = parseInt(bpmInput.value) || 60;
             if (currentBpm < 60) currentBpm = 60;
             if (currentBpm > 300) currentBpm = 300;
             bpmInput.value = currentBpm;
             
-            // Calcula a velocidade baseada no BPM
             if (isRunning) {
                 cancelAnimationFrame(animationId);
                 startGame();
             }
         }
 
-        // ========== INICIAR JOGO ========== //
+        // Inicia o jogo
         function startGame() {
             if (isRunning) return;
             
             isRunning = true;
-            isActiveRound = true; // Começa com rodada ativa
+            isActiveRound = true;
             trackContainer.classList.remove('wait-round');
             startBtn.textContent = "Em Execução";
-            perfectStreak = 0; // Reseta a sequência de PERFECTs
+            perfectStreak = 0;
             
-            // Obtem dimensões
             trackWidth = trackContainer.offsetWidth;
-            
-            // Calcula posição do perfect (80% da barra)
-            const perfectZoneWidth = perfectZone.offsetWidth;
             perfectCenterX = trackWidth * 0.8;
             perfectZone.style.left = `${perfectCenterX}px`;
             
-            // Calcula velocidade (pixels por milissegundo)
-            const pixelsPerBeat = trackWidth * 1.3; // Distância total + margem
+            const pixelsPerBeat = trackWidth * 1.3;
             const msPerBeat = (60 / currentBpm) * 1000;
             speed = pixelsPerBeat / msPerBeat;
             
-            // Posição inicial
             marker.style.left = '-35px';
             let startTime = Date.now();
             
-            // Animação principal
             function animate() {
                 if (!isRunning) return;
                 
                 const elapsed = Date.now() - startTime;
                 const position = -35 + (elapsed * speed);
-                
                 marker.style.left = `${position}px`;
                 
-                // Atualiza glow ao redor do marcador
                 updateMarkerGlow(position);
-                
-                // Verifica se passou pelo centro do perfect
                 checkPerfectPass(position);
                 
-                // Reinicia quando sai da tela
                 if (position > trackWidth + 35) {
                     startTime = Date.now();
                     marker.style.left = '-35px';
                     
-                    // Alternar entre rodada ativa e de espera
                     isActiveRound = !isActiveRound;
                     
-                    // Aplicar efeito visual para rodada de espera
                     if (isActiveRound) {
                         trackContainer.classList.remove('wait-round');
                     } else {
@@ -593,7 +668,7 @@
             animate();
         }
 
-        // ========== ATUALIZAR GLOW ========== //
+        // Atualiza o brilho do marcador
         function updateMarkerGlow(position) {
             const distance = Math.abs(position - perfectCenterX);
             
@@ -605,11 +680,10 @@
             }
         }
 
-        // ========== VERIFICAR PASSAGEM PELO PERFECT ========== //
+        // Verifica se passou pelo centro da zona perfeita
         function checkPerfectPass(position) {
             const tolerance = 5;
             if (Math.abs(position - perfectCenterX) < tolerance) {
-                // Efeito visual
                 perfectZone.style.transform = 'translate(-50%, -50%) scale(1.2)';
                 setTimeout(() => {
                     perfectZone.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -617,17 +691,14 @@
             }
         }
 
-        // ========== AVALIAR ACERTO ========== //
+        // Avalia o acerto
         function evaluateHit() {
             if (!isRunning) {
                 alert("Clique em INICIAR primeiro!");
                 return;
             }
             
-            // Se não for uma rodada ativa, não faz nada
-            if (!isActiveRound) {
-                return;
-            }
+            if (!isActiveRound) return;
             
             const markerRect = marker.getBoundingClientRect();
             const perfectRect = perfectZone.getBoundingClientRect();
@@ -636,9 +707,8 @@
             const perfectCenter = perfectRect.left + perfectRect.width / 2;
             const distance = Math.abs(markerCenter - perfectCenter);
             
-            // Limites de avaliação (em pixels)
             const thresholds = {
-                perfect: 20,  // Ajustado para a barra maior
+                perfect: 20,
                 great: 40,
                 cool: 70,
                 bad: 100
@@ -653,20 +723,24 @@
                 perfects++;
                 perfectCount.textContent = perfects;
                 combo++;
-                perfectStreak++; // Incrementa sequência de PERFECTs
+                perfectStreak++;
                 
-                // Toca o som correto para PERFECT baseado na sequência
                 if (perfectStreak === 1) {
                     playSound('perfect_normal');
                 } else if (perfectStreak === 2) {
                     playSound('perfect_combo');
                 } else {
-                    playSound('perfect_advanced'); // Combos acima de x2
+                    playSound('perfect_advanced');
                 }
                 
                 createParticles(perfectCenter, markerRect.top + 15, '#00a2ff', 20);
                 
-                // Exibe "PERFECT xN" para sequências
+                if (perfectStreak > 1) {
+                    showComboFeedback(`PERFECT x${perfectStreak}`, 'perfect');
+                } else {
+                    showFeedback('PERFECT!', 'perfect');
+                }
+                
                 showJudgment(judgment, judgmentClass, perfectStreak);
             } 
             else if (distance <= thresholds.great) {
@@ -675,9 +749,10 @@
                 greats++;
                 greatCount.textContent = greats;
                 combo++;
-                perfectStreak = 0; // Reseta sequência de PERFECTs
+                perfectStreak = 0;
                 playSound('great');
                 createParticles(perfectCenter, markerRect.top + 15, '#4CAF50', 12);
+                showFeedback('GREAT!', 'great');
                 showJudgment(judgment, judgmentClass);
             }
             else if (distance <= thresholds.cool) {
@@ -686,8 +761,9 @@
                 cools++;
                 coolCount.textContent = cools;
                 combo = 0;
-                perfectStreak = 0; // Reseta sequência de PERFECTs
+                perfectStreak = 0;
                 playSound('cool');
+                showFeedback('COOL!', 'cool');
                 showJudgment(judgment, judgmentClass);
             }
             else if (distance <= thresholds.bad) {
@@ -696,8 +772,9 @@
                 bads++;
                 badCount.textContent = bads;
                 combo = 0;
-                perfectStreak = 0; // Reseta sequência de PERFECTs
+                perfectStreak = 0;
                 playSound('bad');
+                showFeedback('BAD!', 'bad');
                 showJudgment(judgment, judgmentClass);
             }
             else {
@@ -706,21 +783,40 @@
                 misses++;
                 missCount.textContent = misses;
                 combo = 0;
-                perfectStreak = 0; // Reseta sequência de PERFECTs
+                perfectStreak = 0;
                 showMissEffect();
                 playSound('miss');
+                showFeedback('MISS!', 'miss');
                 showJudgment(judgment, judgmentClass);
             }
             
-            // Atualizar combo
             updateCombo();
         }
+        
+        // Exibe feedback
+        function showFeedback(text, type) {
+            feedbackDisplay.textContent = text;
+            feedbackDisplay.className = `feedback-display feedback-${type} feedback-show`;
+            
+            setTimeout(() => {
+                feedbackDisplay.classList.remove('feedback-show');
+            }, 1000);
+        }
+        
+        // Exibe feedback de combo
+        function showComboFeedback(text, type) {
+            feedbackDisplay.innerHTML = `${text} <span class="combo-text">COMBO!</span>`;
+            feedbackDisplay.className = `feedback-display feedback-${type} feedback-show`;
+            
+            setTimeout(() => {
+                feedbackDisplay.classList.remove('feedback-show');
+            }, 1000);
+        }
 
-        // ========== REPRODUZIR SOM ========== //
+        // Reproduz som
         function playSound(type) {
             try {
                 if (sounds[type]) {
-                    // Reinicia o áudio e reproduz
                     sounds[type].currentTime = 0;
                     sounds[type].play().catch(e => {
                         console.log(`Erro ao reproduzir som ${type}:`, e);
@@ -731,7 +827,7 @@
             }
         }
 
-        // ========== CRIAR PARTÍCULAS ========== //
+        // Cria partículas
         function createParticles(x, y, color, quantity = 10) {
             for (let i = 0; i < quantity; i++) {
                 const size = Math.random() * 8 + 4;
@@ -748,7 +844,6 @@
                 
                 particlesContainer.appendChild(particle);
                 
-                // Remover após animação
                 setTimeout(() => {
                     if (particle.parentNode) {
                         particle.parentNode.removeChild(particle);
@@ -757,14 +852,11 @@
             }
         }
 
-        // ========== MOSTRAR JULGAMENTO ========== //
+        // Mostra julgamento
         function showJudgment(text, className, streak = 0) {
-            // Para PERFECT, mostra "PERFECT xN" a partir do primeiro
             if (text === 'PERFECT' && streak >= 1) {
                 judgmentText.textContent = `${text} x${streak}`;
-            } 
-            // Para outros julgamentos, mostra apenas o texto
-            else {
+            } else {
                 judgmentText.textContent = text;
             }
             
@@ -778,7 +870,7 @@
             }, 1000);
         }
 
-        // ========== MOSTRAR EFEITO DE MISS ========== //
+        // Mostra efeito de miss
         function showMissEffect() {
             missEffect.style.opacity = '0.7';
             setTimeout(() => {
@@ -786,7 +878,7 @@
             }, 300);
         }
 
-        // ========== ATUALIZAR COMBO ========== //
+        // Atualiza o combo
         function updateCombo() {
             comboDisplay.textContent = combo;
             
@@ -795,7 +887,6 @@
                 maxCombo.textContent = highestCombo;
             }
             
-            // Efeito visual
             if (combo > 0) {
                 comboDisplay.style.transform = 'scale(1.15)';
                 setTimeout(() => {
@@ -804,7 +895,7 @@
             }
         }
 
-        // ========== RESETAR JOGO ========== //
+        // Reseta o jogo
         function resetGame() {
             cancelAnimationFrame(animationId);
             isRunning = false;
@@ -831,14 +922,14 @@
             judgmentText.style.opacity = '0';
             trackContainer.classList.remove('wait-round');
             startBtn.textContent = "Iniciar (Espaço)";
+            feedbackDisplay.classList.remove('feedback-show');
         }
 
-        // ========== EVENT LISTENERS ========== //
+        // Event listeners
         startBtn.addEventListener('click', startGame);
         resetBtn.addEventListener('click', resetGame);
         setBpmBtn.addEventListener('click', setBpm);
 
-        // Tecla Espaço para acertar
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') {
                 if (!isRunning) {
@@ -849,16 +940,13 @@
             }
         });
 
-        // Tecla Enter para aplicar BPM
         bpmInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 setBpm();
             }
         });
 
-        // Pré-carregar os sons
         window.addEventListener('load', () => {
-            // Tenta carregar todos os sons
             Object.values(sounds).forEach(sound => {
                 try {
                     sound.load();
@@ -866,10 +954,9 @@
                     console.log("Erro ao carregar som:", e);
                 }
             });
+            
+            setBpm();
         });
-
-        // Inicialização
-        setBpm();
     </script>
 </body>
 </html>

@@ -47,9 +47,9 @@ label {
 /* Container da barra */
 #barra-container {
   width: 400px;
-  height: 50px;
+  height: 30px; /* barra mais fina */
   background-color: #222;
-  border-radius: 25px;
+  border-radius: 15px;
   position: relative;
   box-shadow: 0 0 15px #000;
   overflow: hidden;
@@ -73,7 +73,7 @@ label {
   width: 70px;
   height: 100%;
   background-color: #0af;
-  border-radius: 25px;
+  border-radius: 15px;
   box-shadow: 0 0 15px #0af;
   transform: translateX(-50%);
 }
@@ -81,11 +81,11 @@ label {
 /* Bolinha vermelha indicadora */
 #bolinha {
   position: absolute;
-  top: 5px;
-  width: 40px; /* aumentei para ficar maior */
-  height: 40px;
+  top: 3px; /* centralizada verticalmente */
+  width: 30px;
+  height: 24px;
   background-color: red;
-  border-radius: 20px;
+  border-radius: 12px;
   box-shadow: 0 0 15px red;
   left: 0;
   transition: left linear;
@@ -97,7 +97,7 @@ label {
   font-weight: 900;
   text-align: center;
   margin-top: 20px;
-  min-height: 3rem; /* Para evitar salto na UI */
+  min-height: 3rem; /* evita salto na UI */
   user-select: none;
   pointer-events: none;
   opacity: 0;

@@ -1,66 +1,66 @@
 body {
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: white;
-  text-align: center;
-  padding-top: 40px;
+  font-family: Arial, sans-serif; /* Define a fonte da página */
+  background: #111; /* Fundo escuro quase preto */
+  color: white; /* Cor do texto branca para contraste */
+  text-align: center; /* Centraliza o texto na página */
+  padding-top: 40px; /* Espaço no topo da página */
 }
 
 #barra {
-  position: relative;
-  width: 400px;
-  height: 20px;
-  margin: 50px auto;
-  background: #000;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 0 8px #333 inset;
+  position: relative; /* Para posicionar elementos filhos de forma absoluta dentro dela */
+  width: 400px; /* Largura da barra */
+  height: 20px; /* Altura da barra */
+  margin: 50px auto; /* Espaçamento vertical e centraliza horizontalmente */
+  background: #000; /* Fundo preto da barra */
+  border-radius: 15px; /* Bordas arredondadas para a barra */
+  overflow: hidden; /* Esconde conteúdo que ultrapassar os limites da barra */
+  box-shadow: 0 0 8px #333 inset; /* Sombra interna para dar profundidade */
 }
 
 #barra-azul {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 85%;
-  background: linear-gradient(90deg, #3399ff, #005bb5);
-  border-radius: 15px 0 0 15px;
-  opacity: 0.4;
-  z-index: 0;
+  position: absolute; /* Posicionamento absoluto dentro da #barra */
+  top: 0; /* Alinha no topo da barra */
+  left: 0; /* Alinha na esquerda da barra */
+  height: 100%; /* Ocupa toda a altura da barra */
+  width: 85%; /* Ocupa 85% da largura da barra */
+  background: linear-gradient(90deg, #3399ff, #005bb5); /* Gradiente azul da esquerda para direita */
+  border-radius: 15px 0 0 15px; /* Bordas arredondadas só do lado esquerdo */
+  opacity: 0.4; /* Transparência para deixar o efeito suave */
+  z-index: 0; /* Fica atrás dos elementos com z-index maior */
 }
 
 #zona-perfect {
-  position: absolute;
-  width: 60px;
-  height: 100%;
-  left: 85%;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, #00d0ff, #0066cc);
-  border-radius: 10px;
-  opacity: 0.6;
-  animation: none;
-  z-index: 1;
+  position: absolute; /* Posicionamento absoluto dentro da #barra */
+  width: 60px; /* Largura da zona "perfect" */
+  height: 100%; /* Altura igual à barra */
+  left: 85%; /* Posiciona a zona na marca de 85% da barra */
+  transform: translateX(-50%); /* Ajusta o posicionamento para centralizar a zona nessa posição */
+  background: radial-gradient(circle, #00d0ff, #0066cc); /* Gradiente radial azul claro para escuro */
+  border-radius: 10px; /* Bordas arredondadas da zona */
+  opacity: 0.6; /* Transparência para efeito visual */
+  animation: none; /* Animação desligada por padrão */
+  z-index: 1; /* Fica acima do #barra-azul, mas abaixo da bolinha */
 }
 
 @keyframes pulse {
-  0% { opacity: 0.9; transform: translateX(-50%) scale(1.3); }
-  50% { opacity: 0.3; transform: translateX(-50%) scale(1); }
-  100% { opacity: 0.9; transform: translateX(-50%) scale(1.3); }
+  0% { opacity: 0.9; transform: translateX(-50%) scale(1.3); } /* Início da animação: mais opaco e maior */
+  50% { opacity: 0.3; transform: translateX(-50%) scale(1); } /* Meio da animação: mais transparente e tamanho original */
+  100% { opacity: 0.9; transform: translateX(-50%) scale(1.3); } /* Final da animação: volta ao início */
 }
 
 #bolinha {
-  position: absolute;
-  top: -5px;
-  width: 30px;
-  height: 30px;
-  background: red;
-  border-radius: 50%;
-  left: 0;
-  transition: left 0s;
-  z-index: 2;
+  position: absolute; /* Posiciona a bolinha de forma absoluta dentro da barra */
+  top: -5px; /* Ajusta para ficar um pouco acima da barra (centralizada verticalmente) */
+  width: 30px; /* Largura da bolinha */
+  height: 30px; /* Altura da bolinha */
+  background: red; /* Cor vermelha da bolinha */
+  border-radius: 50%; /* Deixa a bolinha perfeitamente circular */
+  left: 0; /* Começa posicionada na esquerda da barra */
+  transition: left 0s; /* Transição instantânea no movimento horizontal (sem delay) */
+  z-index: 2; /* Fica acima de todos os outros elementos para estar visível */
 }
 
 #feedback {
-  margin-top: 40px;
-  font-size: 2em;
+  margin-top: 40px; /* Espaço acima do texto de feedback */
+  font-size: 2em; /* Texto maior para destacar o feedback */
 }

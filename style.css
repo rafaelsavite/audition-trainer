@@ -1,60 +1,118 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   background-color: #111;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  overflow: hidden;
   flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  height: 100vh;
+  padding: 20px;
+  user-select: none;
 }
 
-.barra-container {
+/* Mensagem de boas-vindas no topo */
+#welcome-msg {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  text-align: center;
+  color: #3af;
+  text-shadow: 0 0 10px #3af;
+}
+
+/* Container da barra */
+#barra-container {
   width: 400px;
-  height: 20px;
-  background-color: #333;
+  height: 50px;
+  background-color: #222;
+  border-radius: 25px;
   position: relative;
-  border-radius: 10px;
+  box-shadow: 0 0 15px #000;
   overflow: hidden;
-  box-shadow: 0 0 10px #000;
+  margin-bottom: 60px;
 }
 
-.barra {
+/* Barra principal */
+#barra {
   width: 100%;
   height: 100%;
   position: relative;
 }
 
-.alvo {
+/* Zona "Perfect" azul */
+#zona-perfect {
+  position: absolute;
+  top: 0;
+  left: 70%;
   width: 70px;
   height: 100%;
-  background-color: #00f;
-  position: absolute;
-  left: 80%;
+  background-color: #0af;
+  border-radius: 25px;
+  box-shadow: 0 0 15px #0af;
   transform: translateX(-50%);
-  border-radius: 5px;
 }
 
-.indicador {
-  width: 10px;
-  height: 100%;
-  background-color: red;
+/* Bolinha vermelha indicadora */
+#bolinha {
   position: absolute;
+  top: 5px;
+  width: 30px;
+  height: 40px;
+  background-color: red;
+  border-radius: 15px;
+  box-shadow: 0 0 15px red;
   left: 0;
-  border-radius: 5px;
-  animation: mover 2s linear infinite;
+  transition: left linear;
 }
 
-@keyframes mover {
-  from {
-    left: 0;
-  }
-  to {
-    left: 100%;
-  }
+/* Feedback texto abaixo da barra */
+#feedback {
+  font-size: 2.5rem;
+  font-weight: 900;
+  text-align: center;
+  margin-top: 20px;
+  min-height: 3rem; /* Para evitar salto na UI */
+  user-select: none;
+  pointer-events: none;
+  /* Vamos animar a opacidade para sumir depois */
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
 
-/* Botão "Espaço" para celular */
+/* Cores para cada resultado */
+.perfect {
+  color: #3af; /* azul */
+  text-shadow: 0 0 10px #3af;
+}
+
+.great {
+  color: #0f0; /* verde */
+  text-shadow: 0 0 10px #0f0;
+}
+
+.cool {
+  color: #5cf; /* azul claro */
+  text-shadow: 0 0 10px #5cf;
+}
+
+.bad {
+  color: #f5a; /* rosa */
+  text-shadow: 0 0 10px #f5a;
+}
+
+.miss {
+  color: #888; /* cinza escuro */
+  text-shadow: none;
+}
+
+/* Botão redondo "Espaço" no canto inferior direito */
 #botaoEspaco {
   position: fixed;
   bottom: 30px;
@@ -65,12 +123,13 @@ body {
   color: white;
   border: none;
   border-radius: 50%;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   z-index: 999;
-  transition: transform 0.1s ease;
+  user-select: none;
+  transition: transform 0.1s ease, background-color 0.3s ease;
 }
 
 #botaoEspaco:active {

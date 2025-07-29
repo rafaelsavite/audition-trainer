@@ -122,7 +122,7 @@ document.addEventListener("keydown", (e) => {
 
     // Ajuste da zona azul - 70% para direita, largura 70px (você pode ajustar aqui também)
     const zonaStart = 280;
-    const zonaWidth = 70;
+    const zonaWidth = 90;
     const zonaCenter = zonaStart + zonaWidth / 2;
 
     const diff = Math.abs(bolinhaCenter - zonaCenter);

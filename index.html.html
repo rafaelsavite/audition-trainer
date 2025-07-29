@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audition Perfect Trainer PRO</title>
+    <style>
+        :root {
+            --track-bg: #222;
+            --track-border: #444;
+            --perfect-zone: #00a2ff;
+            --marker-red: #ff3355;
+            --marker-border: #fff;
+            --perfect: #00a2ff;
+            --great: #4CAF50;
+            --cool: #00d4ff;
+            --bad: #ff66aa;
+            --miss: #ff0000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            background: rgba(15, 15, 30, 0.8);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            letter-spacing: 1px;
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- TRACK PRINCIPAL --- */
+        .track-container {
+            width: 100%;
+            height: 55px;
+            background: var(--track-bg);
+            border-radius: 30px;
+            border: 2px solid var(--track-border);
+            position: relative;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8), 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s;
+        }
+
+        /* Classe para rodada de espera */
+        .wait-round {
+            opacity: 0.5;
+        }
+
+        /* --- PERFECT ZONE (barrinha azul) - 30% MAIOR --- */
+        .perfect-zone {
+            width: 13%;
+            min-width: 50px;
+            height: 80%;
+            background: linear-gradient(to bottom, var(--perfect-zone), #0066ff);
+            border-radius: 12px;
+            position: absolute;
+            top: 50%;
+            left: 80%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(0, 162, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.1s;
+            z-index: 2;
+        }
+
+        /* --- MARKER (bolinha vermelha) --- */
+        .marker {
+            width: 35px;
+            height: 35px;
+            background: radial-gradient(circle at 30% 30%, #ff5a7d, var(--marker-red));
+            border-radius: 50%;
+            border: 3px solid var(--marker-border);
+            position: absolute;
+            top: 50%;
+            left: -35px;
+            transform: translateY(-50%);
+            z-index: 3;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.6);
+        }
+
+        .marker::before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 4;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+        }
+
+        /* --- JUDGMENT TEXT --- */
+        .judgment-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            top: 80px;
+            font-size: 36px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            text-shadow: 0 0 15px currentColor;
+            pointer-events: none;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .perfect { color: var(--perfect); }
+        .great { color: var(--great); }
+        .cool { color: var(--cool); }
+        .bad { color: var(--bad); }
+        .miss { color: var(--miss); }
+
+        /* --- CONTROLS --- */
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .bpm-control {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        button, input {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 13px 26px;
+            border-radius: 30px;
+            font-size: 17px;
+            transition: all 0.2s;
+        }
+
+        button {
+            background: linear-gradient(to bottom, #FF7043, #F4511E);
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 160px;
+            box-shadow: 0 4px 10px rgba(244, 81, 30, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(244, 81, 30, 0.4);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        input {
+            width: 110px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            background: rgba(50, 50, 50, 0.8);
+            border: 2px solid #555;
+            color: #FFD700;
+        }
+
+        /* --- STATS --- */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            background: rgba(20, 20, 40, 0.7);
+            padding: 15px 22px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 110px;
+            border: 1px solid rgba(100, 100, 150, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-label {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ddd;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 8px currentColor;
+        }
+
+        /* --- COMBO --- */
+        .combo-display {
+            font-size: 80px;
+            text-align: center;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.5);
+            height: 110px;
+            margin: 25px 0;
+            font-family: 'Arial Black', sans-serif;
+            letter-spacing: 3px;
+            transition: transform 0.2s;
+            background: linear-gradient(to bottom, #FFD700, #da8e00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- EFEITOS VISUAIS --- */
+        .marker-glow {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(0,162,255,0.9) 0%, rgba(0,162,255,0) 70%);
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particle-fade 1s forwards;
+        }
+
+        @keyframes particle-fade {
+            0% { transform: translate(0, 0); opacity: 1; }
+            100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+        }
+
+        .miss-effect {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(255, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin: 30px auto 10px;
+            text-align: center;
+            font-size: 15px;
+            color: #ccc;
+            max-width: 700px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .instructions p {
+            margin: 8px 0;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+            .game-container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .combo-display { 
+                font-size: 60px;
+                height: 90px;
+            }
+            
+            .judgment-text { 
+                font-size: 28px; 
+                top: 70px;
+            }
+            
+            .track-container { 
+                height: 45px; 
+                margin: 25px 0;
+            }
+            
+            .perfect-zone { 
+                height: 75%; 
+            }
+            
+            .stat-box { 
+                padding: 12px 18px; 
+                min-width: 90px; 
+            }
+            
+            .stat-value { 
+                font-size: 24px; 
+            }
+            
+            button { 
+                padding: 12px 20px; 
+                min-width: 140px; 
+                font-size: 16px;
+            }
+            
+            input {
+                width: 90px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Audition Perfect Trainer</h1>
+            <p>Treine seu timing para acertar PERFECTs e dominar o jogo!</p>
+        </div>
+        
+        <div class="combo-display" id="combo">0</div>
+        
+        <div class="bpm-control">
+            <label for="bpm">BPM:</label>
+            <input type="number" id="bpm" value="60" min="60" max="300">
+            <button id="setBpm">Aplicar</button>
+        </div>
+        
+        <div class="track-container" id="trackContainer">
+            <div class="perfect-zone" id="perfectZone"></div>
+            <div class="marker" id="marker"></div>
+            <div class="judgment-text" id="judgmentText"></div>
+            <div class="marker-glow" id="markerGlow"></div>
+            <div class="miss-effect" id="missEffect"></div>
+        </div>
+        
+        <div class="particles" id="particles"></div>
+        
+        <div class="controls">
+            <button id="startBtn">Iniciar (Espaço)</button>
+            <button id="resetBtn">Resetar</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">PERFECT</div>
+                <div class="stat-value perfect" id="perfectCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">GREAT</div>
+                <div class="stat-value great" id="greatCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">COOL</div>
+                <div class="stat-value cool" id="coolCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">BAD</div>
+                <div class="stat-value bad" id="badCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">MISS</div>
+                <div class="stat-value miss" id="missCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">MAX COMBO</div>
+                <div class="stat-value" id="maxCombo">0</div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p>1. Defina o BPM desejado e clique em APLICAR</p>
+            <p>2. Clique em INICIAR ou pressione ESPAÇO</p>
+            <p>3. Pressione ESPAÇO quando a bolinha passar pela zona azul</p>
+            <p>4. Tente acertar PERFECTs consecutivos para aumentar seu combo!</p>
+            <p class="miss-info">OBS: Os combos são reiniciados quando você erra (MISS)</p>
+        </div>
+        
+        <div class="footer">
+            Audition Perfect Trainer PRO &copy; 2023
+        </div>
+    </div>
+
+    <script>
+        // ========== ELEMENTOS DO DOM ========== //
+        const comboDisplay = document.getElementById('combo');
+        const marker = document.getElementById('marker');
+        const perfectZone = document.getElementById('perfectZone');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const bpmInput = document.getElementById('bpm');
+        const setBpmBtn = document.getElementById('setBpm');
+        const judgmentText = document.getElementById('judgmentText');
+        const markerGlow = document.getElementById('markerGlow');
+        const missEffect = document.getElementById('missEffect');
+        const particlesContainer = document.getElementById('particles');
+        const trackContainer = document.getElementById('trackContainer');
+        
+        // Contadores
+        const perfectCount = document.getElementById('perfectCount');
+        const greatCount = document.getElementById('greatCount');
+        const coolCount = document.getElementById('coolCount');
+        const badCount = document.getElementById('badCount');
+        const missCount = document.getElementById('missCount');
+        const maxCombo = document.getElementById('maxCombo');
+
+        // ========== VARIÁVEIS DO JOGO ========== //
+        let combo = 0;
+        let perfects = 0;
+        let greats = 0;
+        let cools = 0;
+        let bads = 0;
+        let misses = 0;
+        let highestCombo = 0;
+        let isRunning = false;
+        let currentBpm = 60; // Valor padrão 60 BPM
+        let animationId = null;
+        let perfectCenterX = 0;
+        let trackWidth = 0;
+        let speed = 0;
+        let perfectStreak = 0; // Contador de PERFECTs consecutivos
+        let isActiveRound = true; // Controla se a rodada atual é ativa (pode acertar) ou de espera
+
+        // ========== SONS PERSONALIZADOS ========== //
+        // Nomes dos arquivos de som conforme solicitado
+        const sounds = {
+            bad: new Audio('effect_b.wav'),
+            cool: new Audio('effect_c.wav'),
+            great: new Audio('effect_g.wav'),
+            perfect_normal: new Audio('effect_p1.wav'),
+            perfect_combo: new Audio('effect_p2.wav'),
+            perfect_advanced: new Audio('effect_a.wav'),
+            miss: new Audio('effect_m.wav') // Som de MISS corrigido
+        };
+
+        // ========== CONFIGURAÇÃO DO BPM ========== //
+        function setBpm() {
+            currentBpm = parseInt(bpmInput.value) || 60;
+            if (currentBpm < 60) currentBpm = 60;
+            if (currentBpm > 300) currentBpm = 300;
+            bpmInput.value = currentBpm;
+            
+            // Calcula a velocidade baseada no BPM
+            if (isRunning) {
+                cancelAnimationFrame(animationId);
+                startGame();
+            }
+        }
+
+        // ========== INICIAR JOGO ========== //
+        function startGame() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            isActiveRound = true; // Começa com rodada ativa
+            trackContainer.classList.remove('wait-round');
+            startBtn.textContent = "Em Execução";
+            perfectStreak = 0; // Reseta a sequência de PERFECTs
+            
+            // Obtem dimensões
+            trackWidth = trackContainer.offsetWidth;
+            
+            // Calcula posição do perfect (80% da barra)
+            const perfectZoneWidth = perfectZone.offsetWidth;
+            perfectCenterX = trackWidth * 0.8;
+            perfectZone.style.left = `${perfectCenterX}px`;
+            
+            // Calcula velocidade (pixels por milissegundo)
+            const pixelsPerBeat = trackWidth * 1.3; // Distância total + margem
+            const msPerBeat = (60 / currentBpm) * 1000;
+            speed = pixelsPerBeat / msPerBeat;
+            
+            // Posição inicial
+            marker.style.left = '-35px';
+            let startTime = Date.now();
+            
+            // Animação principal
+            function animate() {
+                if (!isRunning) return;
+                
+                const elapsed = Date.now() - startTime;
+                const position = -35 + (elapsed * speed);
+                
+                marker.style.left = `${position}px`;
+                
+                // Atualiza glow ao redor do marcador
+                updateMarkerGlow(position);
+                
+                // Verifica se passou pelo centro do perfect
+                checkPerfectPass(position);
+                
+                // Reinicia quando sai da tela
+                if (position > trackWidth + 35) {
+                    startTime = Date.now();
+                    marker.style.left = '-35px';
+                    
+                    // Alternar entre rodada ativa e de espera
+                    isActiveRound = !isActiveRound;
+                    
+                    // Aplicar efeito visual para rodada de espera
+                    if (isActiveRound) {
+                        trackContainer.classList.remove('wait-round');
+                    } else {
+                        trackContainer.classList.add('wait-round');
+                    }
+                }
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+        }
+
+        // ========== ATUALIZAR GLOW ========== //
+        function updateMarkerGlow(position) {
+            const distance = Math.abs(position - perfectCenterX);
+            
+            if (distance < 100) {
+                markerGlow.style.opacity = (1 - distance / 100).toString();
+                markerGlow.style.left = `${position}px`;
+            } else {
+                markerGlow.style.opacity = '0';
+            }
+        }
+
+        // ========== VERIFICAR PASSAGEM PELO PERFECT ========== //
+        function checkPerfectPass(position) {
+            const tolerance = 5;
+            if (Math.abs(position - perfectCenterX) < tolerance) {
+                // Efeito visual
+                perfectZone.style.transform = 'translate(-50%, -50%) scale(1.2)';
+                setTimeout(() => {
+                    perfectZone.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 100);
+            }
+        }
+
+        // ========== AVALIAR ACERTO ========== //
+        function evaluateHit() {
+            if (!isRunning) {
+                alert("Clique em INICIAR primeiro!");
+                return;
+            }
+            
+            // Se não for uma rodada ativa, não faz nada
+            if (!isActiveRound) {
+                return;
+            }
+            
+            const markerRect = marker.getBoundingClientRect();
+            const perfectRect = perfectZone.getBoundingClientRect();
+            
+            const markerCenter = markerRect.left + markerRect.width / 2;
+            const perfectCenter = perfectRect.left + perfectRect.width / 2;
+            const distance = Math.abs(markerCenter - perfectCenter);
+            
+            // Limites de avaliação (em pixels)
+            const thresholds = {
+                perfect: 20,  // Ajustado para a barra maior
+                great: 40,
+                cool: 70,
+                bad: 100
+            };
+            
+            let judgment = '';
+            let judgmentClass = '';
+            
+            if (distance <= thresholds.perfect) {
+                judgment = 'PERFECT';
+                judgmentClass = 'perfect';
+                perfects++;
+                perfectCount.textContent = perfects;
+                combo++;
+                perfectStreak++; // Incrementa sequência de PERFECTs
+                
+                // Toca o som correto para PERFECT baseado na sequência
+                if (perfectStreak === 1) {
+                    playSound('perfect_normal');
+                } else if (perfectStreak === 2) {
+                    playSound('perfect_combo');
+                } else {
+                    playSound('perfect_advanced'); // Combos acima de x2
+                }
+                
+                createParticles(perfectCenter, markerRect.top + 15, '#00a2ff', 20);
+                
+                // Exibe "PERFECT xN" para sequências
+                showJudgment(judgment, judgmentClass, perfectStreak);
+            } 
+            else if (distance <= thresholds.great) {
+                judgment = 'GREAT';
+                judgmentClass = 'great';
+                greats++;
+                greatCount.textContent = greats;
+                combo++;
+                perfectStreak = 0; // Reseta sequência de PERFECTs
+                playSound('great');
+                createParticles(perfectCenter, markerRect.top + 15, '#4CAF50', 12);
+                showJudgment(judgment, judgmentClass);
+            }
+            else if (distance <= thresholds.cool) {
+                judgment = 'COOL';
+                judgmentClass = 'cool';
+                cools++;
+                coolCount.textContent = cools;
+                combo = 0;
+                perfectStreak = 0; // Reseta sequência de PERFECTs
+                playSound('cool');
+                showJudgment(judgment, judgmentClass);
+            }
+            else if (distance <= thresholds.bad) {
+                judgment = 'BAD';
+                judgmentClass = 'bad';
+                bads++;
+                badCount.textContent = bads;
+                combo = 0;
+                perfectStreak = 0; // Reseta sequência de PERFECTs
+                playSound('bad');
+                showJudgment(judgment, judgmentClass);
+            }
+            else {
+                judgment = 'MISS';
+                judgmentClass = 'miss';
+                misses++;
+                missCount.textContent = misses;
+                combo = 0;
+                perfectStreak = 0; // Reseta sequência de PERFECTs
+                showMissEffect();
+                playSound('miss');
+                showJudgment(judgment, judgmentClass);
+            }
+            
+            // Atualizar combo
+            updateCombo();
+        }
+
+        // ========== REPRODUZIR SOM ========== //
+        function playSound(type) {
+            try {
+                if (sounds[type]) {
+                    // Reinicia o áudio e reproduz
+                    sounds[type].currentTime = 0;
+                    sounds[type].play().catch(e => {
+                        console.log(`Erro ao reproduzir som ${type}:`, e);
+                    });
+                }
+            } catch (e) {
+                console.log("Erro com o áudio:", e);
+            }
+        }
+
+        // ========== CRIAR PARTÍCULAS ========== //
+        function createParticles(x, y, color, quantity = 10) {
+            for (let i = 0; i < quantity; i++) {
+                const size = Math.random() * 8 + 4;
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.backgroundColor = color;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.setProperty('--tx', `${Math.random() * 120 - 60}px`);
+                particle.style.setProperty('--ty', `${Math.random() * 120 - 60}px`);
+                particle.style.boxShadow = `0 0 ${size/2}px ${color}`;
+                
+                particlesContainer.appendChild(particle);
+                
+                // Remover após animação
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 1000);
+            }
+        }
+
+        // ========== MOSTRAR JULGAMENTO ========== //
+        function showJudgment(text, className, streak = 0) {
+            // Para PERFECT, mostra "PERFECT xN" a partir do primeiro
+            if (text === 'PERFECT' && streak >= 1) {
+                judgmentText.textContent = `${text} x${streak}`;
+            } 
+            // Para outros julgamentos, mostra apenas o texto
+            else {
+                judgmentText.textContent = text;
+            }
+            
+            judgmentText.className = `judgment-text ${className}`;
+            judgmentText.style.opacity = '1';
+            judgmentText.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                judgmentText.style.opacity = '0';
+                judgmentText.style.transform = 'translateY(-25px)';
+            }, 1000);
+        }
+
+        // ========== MOSTRAR EFEITO DE MISS ========== //
+        function showMissEffect() {
+            missEffect.style.opacity = '0.7';
+            setTimeout(() => {
+                missEffect.style.opacity = '0';
+            }, 300);
+        }
+
+        // ========== ATUALIZAR COMBO ========== //
+        function updateCombo() {
+            comboDisplay.textContent = combo;
+            
+            if (combo > highestCombo) {
+                highestCombo = combo;
+                maxCombo.textContent = highestCombo;
+            }
+            
+            // Efeito visual
+            if (combo > 0) {
+                comboDisplay.style.transform = 'scale(1.15)';
+                setTimeout(() => {
+                    comboDisplay.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+
+        // ========== RESETAR JOGO ========== //
+        function resetGame() {
+            cancelAnimationFrame(animationId);
+            isRunning = false;
+            combo = 0;
+            perfects = 0;
+            greats = 0;
+            cools = 0;
+            bads = 0;
+            misses = 0;
+            highestCombo = 0;
+            perfectStreak = 0;
+            isActiveRound = true;
+            
+            comboDisplay.textContent = '0';
+            perfectCount.textContent = '0';
+            greatCount.textContent = '0';
+            coolCount.textContent = '0';
+            badCount.textContent = '0';
+            missCount.textContent = '0';
+            maxCombo.textContent = '0';
+            
+            marker.style.left = '-35px';
+            perfectZone.style.transform = 'translate(-50%, -50%) scale(1)';
+            judgmentText.style.opacity = '0';
+            trackContainer.classList.remove('wait-round');
+            startBtn.textContent = "Iniciar (Espaço)";
+        }
+
+        // ========== EVENT LISTENERS ========== //
+        startBtn.addEventListener('click', startGame);
+        resetBtn.addEventListener('click', resetGame);
+        setBpmBtn.addEventListener('click', setBpm);
+
+        // Tecla Espaço para acertar
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                if (!isRunning) {
+                    startGame();
+                } else {
+                    evaluateHit();
+                }
+            }
+        });
+
+        // Tecla Enter para aplicar BPM
+        bpmInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                setBpm();
+            }
+        });
+
+        // Pré-carregar os sons
+        window.addEventListener('load', () => {
+            // Tenta carregar todos os sons
+            Object.values(sounds).forEach(sound => {
+                try {
+                    sound.load();
+                } catch (e) {
+                    console.log("Erro ao carregar som:", e);
+                }
+            });
+        });
+
+        // Inicialização
+        setBpm();
+    </script>
+</body>
+</html>

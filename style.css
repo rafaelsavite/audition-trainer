@@ -24,7 +24,7 @@ body {
   position: absolute; /* Posicionada dentro da barra principal */
   top: 0; /* Alinhada ao topo da barra */
   left: 280px; /* Posicionada a 280px da esquerda (70% da barra) */
-  width: 190px; /* Largura fixa da barra azul */
+  width: 70px; /* Largura fixa da barra azul */
   height: 70%; /* Ocupa toda altura da barra */
   background: linear-gradient(90deg, #3399ff, #005bb5); /* Gradiente azul */
   border-radius: 15px 0 0 15px; /* Bordas arredondadas só do lado esquerdo */

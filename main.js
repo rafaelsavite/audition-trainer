@@ -130,10 +130,10 @@ document.addEventListener("keydown", (e) => {
     let result;
 
     // Define o feedback de acordo com a proximidade da bolinha com a zona perfeita
-    if (diff < 8) result = "💯 PERFECT";
-    else if (diff < 25) result = "🔥 GREAT";
-    else if (diff < 45) result = "😐 COOL";
-    else if (diff < 90) result = "❌ BAD";
+    if (diff < 5) result = "💯 PERFECT";
+    else if (diff < 15) result = "🔥 GREAT";
+    else if (diff < 35) result = "😐 COOL";
+    else if (diff < 120) result = "❌ BAD";
     else result = "💀 MISS";
 
     // Exibe o feedback na tela

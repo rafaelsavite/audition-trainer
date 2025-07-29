@@ -1,73 +1,131 @@
+/* Estilo geral da página */
 body {
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: white;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #111;
+  color: #fff;
   text-align: center;
-  padding: 20px;
+  padding: 30px;
+  user-select: none;
+  overflow-x: hidden;
 }
 
+/* Título no topo */
 h1 {
-  font-size: 2rem;
+  font-size: 2em;
   margin-bottom: 20px;
+  font-weight: 700;
+  color: #eee;
+  text-shadow: 0 0 8px #00bfff;
 }
 
-#barra {
+/* Container da barra */
+#barra-container {
   position: relative;
-  width: 80%;
+  width: 90%;
+  max-width: 700px;
   height: 30px;
-  margin: 40px auto;
-  background: #333;
-  border-radius: 15px;
-  overflow: hidden;
+  background-color: #222;
+  margin: 20px auto;
+  border-radius: 8px;
+  box-shadow: inset 0 0 10px #000;
 }
 
-#bolinha {
+/* Barra azul (zona perfeita) */
+#barra-azul {
   position: absolute;
-  width: 20px;
-  height: 30px;
-  background: red;
   top: 0;
-  border-radius: 5px;
-}
-
-#zona-perfect {
-  position: absolute;
-  width: 30px;
+  left: 75%; /* para estar mais para o final, 75% é 85% do total menos a largura da barra */
+  width: 15%;
   height: 100%;
-  background: blue;
-  left: 85%;
-  transform: translateX(-50%);
-  border-radius: 10px;
+  background: linear-gradient(90deg, #007bffcc, #0056b3cc);
+  border-radius: 8px;
+  box-shadow: 0 0 10px #007bff;
 }
 
-#feedback {
-  font-size: 2rem;
-  margin-top: 20px;
-  height: 40px;
-  pointer-events: none;
-}
-
-.feedback-text {
-  animation: fadeOut 0.8s forwards;
+/* Barra vermelha que flutua */
+#barra-vermelha {
   position: absolute;
-  width: 100%;
-  top: 60%;
+  top: 0;
   left: 0;
+  width: 4%;  /* um pouco maior para facilitar o timing */
+  height: 100%;
+  background: linear-gradient(90deg, #ff4d4dcc, #b30000cc);
+  border-radius: 8px;
+  box-shadow: 0 0 8px #ff0000;
+  transition: left 0.05s linear;
 }
 
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1);
-  }
+/* Mensagens de feedback flutuantes */
+#mensagem-flutuante {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3.5rem;
+  font-weight: 900;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-shadow: 0 0 10px #000;
 }
 
-#perfect-streak {
-  margin-top: 10px;
-  font-size: 1.2rem;
-  color: #00f;
+/* Cores das mensagens */
+.mensagem-perfect {
+  color: #007bff;
+  text-shadow: 0 0 20px #00aaff;
+}
+
+.mensagem-great {
+  color: #32cd32;
+  text-shadow: 0 0 20px #28a428;
+}
+
+.mensagem-cool {
+  color: #40e0d0;
+  text-shadow: 0 0 20px #2ca9a9;
+}
+
+.mensagem-bad {
+  color: #ff69b4;
+  text-shadow: 0 0 20px #ff4d94;
+}
+
+/* Contador de perfects seguidos */
+#contador-perfects {
+  margin-top: 20px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #00ffff;
+  text-shadow: 0 0 10px #00cccc;
+}
+
+/* Botão ESPAÇO para mobile */
+#botao-espaco {
+  margin-top: 30px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  font-size: 1.8rem;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0 15px #007bff;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+#botao-espaco:active {
+  background-color: #0056b3;
+  box-shadow: 0 0 25px #0056b3;
+}
+
+/* Quando jogo estiver pausado */
+.pausado {
+  opacity: 0.7;
+  pointer-events: none;
+  user-select: none;
+  filter: brightness(0.6);
+  transition: opacity 0.5s ease;
 }

@@ -1,161 +1,155 @@
-/* Reset básico */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+// Configurações iniciais
+let bpm = 120; // batidas por minuto padrão
+let duration = 60000 / bpm; // duração da batida em ms
+
+// Seleção dos elementos DOM
+const bolinha = document.getElementById("bolinha");
+const zona = document.getElementById("zona-perfect");
+const barra = document.getElementById("barra");
+const feedback = document.getElementById("feedback");
+const botaoEspaco = document.getElementById("botaoEspaco");
+const bpmInput = document.getElementById("bpmInput");
+const bpmDisplay = document.getElementById("bpmDisplay");
+const startBtn = document.getElementById("startBtn");
+
+// Tamanhos fixos para cálculos
+const barraWidth = 400;
+const bolinhaWidth = 30;
+
+let animationFrameId;
+let intervalId;
+
+let perfectStreak = 0; // contador de perfects seguidos
+let roundActive = false; // começa desativado até clicar "Começar"
+
+// Criação de sintetizadores para cada tipo de som (Tone.js)
+const synthPerfect = new Tone.MembraneSynth().toDestination();
+const synthGreat = new Tone.MembraneSynth().toDestination();
+const synthCool = new Tone.MembraneSynth().toDestination();
+const synthBad = new Tone.MembraneSynth().toDestination();
+const synthMiss = new Tone.MembraneSynth().toDestination();
+
+// Atualiza duração com base no BPM e exibe na tela
+function updateDuration() {
+  bpm = parseInt(bpmInput.value) || 120;
+  duration = 60000 / bpm;
+  bpmDisplay.textContent = `BPM: ${bpm}`;
 }
 
-body {
-  background-color: #111;
-  color: white;
-  font-family: 'Orbitron', sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: start;
-  height: 100vh;
-  padding: 20px;
-  user-select: none;
+// Função que anima a bolinha da esquerda para a direita
+function animateBolinha() {
+  const start = performance.now();
+
+  function frame(now) {
+    let elapsed = now - start;
+    let percent = elapsed / duration;
+    if (percent > 1) percent = 1;
+
+    // Calcula posição atual da bolinha (em px)
+    const x = percent * (barraWidth - bolinhaWidth);
+    bolinha.style.left = `${x}px`;
+
+    if (percent < 1) {
+      animationFrameId = requestAnimationFrame(frame);
+    }
+  }
+
+  animationFrameId = requestAnimationFrame(frame);
 }
 
-/* Mensagem de boas-vindas no topo */
-#welcome-msg {
-  font-size: 1.8rem;
-  margin-bottom: 15px;
-  text-align: center;
-  color: #3af;
-  text-shadow: 0 0 10px #3af;
+// Função que inicia uma rodada (movimento da bolinha)
+function startRound() {
+  roundActive = true;
+  updateDuration();
+
+  animateBolinha();
+
+  // Quando a rodada acabar, ativa a pausa (opacidade 0.7)
+  intervalId = setTimeout(() => {
+    roundActive = false;
+    barra.style.opacity = "0.7";
+    bolinha.style.opacity = "0.7";
+    zona.style.opacity = "0.7";
+
+    // Depois de 1s de pausa, retorna à opacidade normal e inicia nova rodada
+    setTimeout(() => {
+      barra.style.opacity = "1";
+      bolinha.style.opacity = "1";
+      zona.style.opacity = "1";
+
+      startRound();
+    }, 1000);
+  }, duration);
 }
 
-/* Label BPM */
-label {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
+// Mostra feedback colorido com fade out
+function showFeedback(text, classe) {
+  feedback.textContent = text;
+  feedback.className = classe;
+  feedback.style.opacity = "1";
+
+  setTimeout(() => {
+    feedback.style.opacity = "0";
+  }, 800);
 }
 
-/* Input BPM */
-#bpmInput {
-  width: 70px;
-  font-size: 1.2rem;
-  padding: 5px;
-  margin-left: 5px;
-  border-radius: 6px;
-  border: none;
-  outline: none;
+// Toca som conforme resultado
+function playSound(result) {
+  switch (result) {
+    case "PERFECT": synthPerfect.triggerAttackRelease("C2", "8n"); break;
+    case "GREAT": synthGreat.triggerAttackRelease("E2", "8n"); break;
+    case "COOL": synthCool.triggerAttackRelease("G2", "8n"); break;
+    case "BAD": synthBad.triggerAttackRelease("A1", "8n"); break;
+    case "MISS": synthMiss.triggerAttackRelease("C1", "8n"); break;
+  }
 }
 
-/* Container da barra */
-#barra-container {
-  width: 400px;
-  height: 30px; /* barra mais fina */
-  background-color: #222;
-  border-radius: 15px;
-  position: relative;
-  box-shadow: 0 0 15px #000;
-  overflow: hidden;
-  margin-bottom: 40px;
+// Checa o acerto ao apertar espaço ou clicar botão
+function checkHit() {
+  if (!roundActive) return; // ignora durante pausa
+
+  // Centro da bolinha e da zona "perfect"
+  const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
+  const zonaCenter = zona.offsetLeft + zona.offsetWidth / 2;
+
+  const diff = Math.abs(bolinhaCenter - zonaCenter);
+
+  let result = "";
+  if (diff < 15) result = "PERFECT";
+  else if (diff < 35) result = "GREAT";
+  else if (diff < 55) result = "COOL";
+  else if (diff < 80) result = "BAD";
+  else result = "MISS";
+
+  // Atualiza contador de perfect seguidos
+  if (result === "PERFECT") perfectStreak++;
+  else perfectStreak = 0;
+
+  // Exibe mensagem com contador se tiver streak
+  if (result === "PERFECT" && perfectStreak > 1) {
+    showFeedback(`Perfect x${perfectStreak}`, "perfect");
+  } else {
+    showFeedback(result.charAt(0) + result.slice(1).toLowerCase(), result.toLowerCase());
+  }
+
+  playSound(result);
 }
 
-/* Barra principal */
-#barra {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  opacity: 1;
-  transition: opacity 0.5s ease;
-}
+// Eventos para apertar espaço ou clicar no botão
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    e.preventDefault();
+    checkHit();
+  }
+});
 
-/* Zona "Perfect" azul */
-#zona-perfect {
-  position: absolute;
-  top: 0;
-  left: 70%;
-  width: 70px;
-  height: 100%;
-  background-color: #0af;
-  border-radius: 15px;
-  box-shadow: 0 0 15px #0af;
-  transform: translateX(-50%);
-}
+botaoEspaco.addEventListener("click", () => {
+  checkHit();
+});
 
-/* Bolinha vermelha indicadora */
-#bolinha {
-  position: absolute;
-  top: 3px; /* centralizada verticalmente */
-  width: 30px;
-  height: 24px;
-  background-color: red;
-  border-radius: 12px;
-  box-shadow: 0 0 15px red;
-  left: 0;
-  transition: left linear;
-}
+// Atualiza duração ao mudar BPM no input
+bpmInput.addEventListener("input", () => {
+  updateDuration();
+});
 
-/* Feedback texto abaixo da barra */
-#feedback {
-  font-size: 2.5rem;
-  font-weight: 900;
-  text-align: center;
-  margin-top: 20px;
-  min-height: 3rem; /* evita salto na UI */
-  user-select: none;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-.perfect {
-  color: #3af; /* azul */
-  text-shadow: 0 0 10px #3af;
-}
-
-.great {
-  color: #0f0; /* verde */
-  text-shadow: 0 0 10px #0f0;
-}
-
-.cool {
-  color: #5cf; /* azul claro */
-  text-shadow: 0 0 10px #5cf;
-}
-
-.bad {
-  color: #f5a; /* rosa */
-  text-shadow: 0 0 10px #f5a;
-}
-
-.miss {
-  color: #888; /* cinza escuro */
-}
-
-/* Contador BPM */
-#bpmDisplay {
-  color: white;
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-}
-
-/* Botão redondo "Espaço" no canto inferior direito */
-#botaoEspaco {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  width: 80px;
-  height: 80px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  cursor: pointer;
-  z-index: 999;
-  user-select: none;
-  transition: transform 0.1s ease, background-color 0.3s ease;
-}
-
-#botaoEspaco:active {
-  transform: scale(0.95);
-  background-color: #0056b3;
-}
+// Não inicia automático! Aguarda clique no botão "Começar"

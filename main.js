@@ -1,105 +1,52 @@
-let bpm = 120;
-let intervalId;
-let animationFrameId;
-let bolinha = document.getElementById("bolinha");
-let zona = document.getElementById("zona-perfect");
-let barra = document.getElementById("barra");
-let feedback = document.getElementById("feedback");
-
-let barraWidth = 400;
-let bolinhaWidth = 30;
-let duration = 0;
-
-let inputEnabled = true; // Controla se o espaço pode ser usado nesta rodada
-let spacePressedThisRound = false; // Garante que só aperte uma vez
-let perfectCount = 0;
-
-function startTraining() {
-  bpm = parseInt(document.getElementById("bpm").value);
-  duration = 60000 / bpm;
-
-  Tone.start();
-  const synth = new Tone.MembraneSynth().toDestination();
-
-  clearInterval(intervalId);
-  cancelAnimationFrame(animationFrameId);
-
-  inputEnabled = true;
-  perfectCount = 0;
-  updateUIState();
-
-  intervalId = setInterval(() => {
-    // Alterna se o espaço estará ativado ou não
-    inputEnabled = !inputEnabled;
-    spacePressedThisRound = false; // Permite novo espaço a cada rodada
-    updateUIState();
-
-    synth.triggerAttackRelease("C2", "8n");
-    zona.style.animation = "pulse 0.4s ease";
-    setTimeout(() => (zona.style.animation = "none"), 400);
-
-    animateBolinha();
-  }, duration);
+/* Container fixo para mensagens de feedback */
+#feedback-container {
+  position: relative;
+  height: 100px;
+  margin-top: 30px;
 }
 
-function updateUIState() {
-  barra.style.opacity = inputEnabled ? "1" : "0.6";
+/* Estilo base da mensagem */
+.feedback-message {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5em;
+  font-weight: bold;
+  opacity: 1;
+  animation: floatUp 0.8s ease forwards;
+  text-shadow: 2px 2px 4px #000;
+  font-family: 'Arial Black', sans-serif;
 }
 
-function animateBolinha() {
-  const start = performance.now();
-
-  function frame(now) {
-    let elapsed = now - start;
-    let percent = elapsed / duration;
-    if (percent > 1) percent = 1;
-
-    const x = percent * (barraWidth - bolinhaWidth);
-    bolinha.style.left = `${x}px`;
-
-    if (percent < 1) {
-      animationFrameId = requestAnimationFrame(frame);
-    }
+/* Animação: sobe e desaparece */
+@keyframes floatUp {
+  0% {
+    transform: translate(-50%, 0);
+    opacity: 1;
   }
-
-  requestAnimationFrame(frame);
+  100% {
+    transform: translate(-50%, -40px);
+    opacity: 0;
+  }
 }
 
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && inputEnabled && !spacePressedThisRound) {
-    spacePressedThisRound = true; // Bloqueia outros espaços nessa rodada
+/* Estilos específicos */
+.perfect {
+  color: #00bfff; /* Azul vibrante */
+}
 
-    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
-    const zonaStart = 280;
-    const zonaWidth = 70;
-    const zonaCenter = zonaStart + zonaWidth / 2;
+.great {
+  color: #00ff66; /* Verde forte */
+}
 
-    const diff = Math.abs(bolinhaCenter - zonaCenter);
+.cool {
+  color: #66ccff; /* Azul claro */
+}
 
-    let result;
+.bad {
+  color: #ff66cc; /* Rosa vibrante */
+}
 
-    if (diff < 15) {
-      result = "💯 PERFECT";
-      perfectCount++;
-      feedback.textContent = `${result} x${perfectCount}`;
-    } else if (diff < 35) {
-      result = "🔥 GREAT";
-      perfectCount = 0;
-      feedback.textContent = result;
-    } else if (diff < 55) {
-      result = "😐 COOL";
-      perfectCount = 0;
-      feedback.textContent = result;
-    } else if (diff < 80) {
-      result = "❌ BAD";
-      perfectCount = 0;
-      feedback.textContent = result;
-    } else {
-      result = "💀 MISS";
-      perfectCount = 0;
-      feedback.textContent = result;
-    }
-  }
-});
-
-document.getElementById("startBtn").addEventListener("click", startTraining);
+.miss {
+  color: #ff3333; /* Vermelho escuro */
+}

@@ -1,82 +1,74 @@
-/* Estilo geral da página */
-body {
-  font-family: Arial, sans-serif; /* Fonte principal */
-  background: #111; /* Fundo escuro */
-  color: white; /* Texto branco */
-  text-align: center; /* Centraliza conteúdo */
-  padding-top: 40px; /* Espaço no topo */
-}
-
-/* Barra principal onde a bolinha e barra azul ficam */
+/* Container principal da barra */
 #barra {
-  position: relative; /* Para posicionamento absoluto dos filhos */
-  width: 400px; /* Largura total da barra */
-  height: 20px; /* Altura da barra */
-  margin: 50px auto; /* Espaçamento vertical e centralização horizontal */
-  background: #000; /* Fundo preto da barra */
-  border-radius: 15px; /* Bordas arredondadas */
-  overflow: hidden; /* Esconde conteúdo que ultrapassar a barra */
-  box-shadow: 0 0 8px #333 inset; /* Sombra interna para profundidade */
+  position: relative;
+  width: 400px; /* largura total da barra */
+  height: 30px;
+  background: linear-gradient(90deg, #666666, #999999);
+  border-radius: 15px;
+  margin: 20px 0;
+  overflow: hidden; /* esconde o que ultrapassar */
 }
 
-/* Barrinha azul que representa a zona de timing ideal */
+/* Barra azul (zona de acerto) */
 #barra-azul {
-  position: absolute; /* Posicionada dentro da barra principal */
-  top: 0; /* Alinhada ao topo da barra */
-  left: 280px; /* Posicionada a 280px da esquerda (70% da barra) */
-  width: 70px; /* Largura fixa da barra azul */
-  height: 70%; /* Ocupa toda altura da barra */
-  background: linear-gradient(90deg, #3399ff, #005bb5); /* Gradiente azul */
-  border-radius: 15px 0 0 15px; /* Bordas arredondadas só do lado esquerdo */
-  opacity: 0.4; /* Transparência suave */
-  z-index: 0; /* Fica atrás da zona-perfect e bolinha */
+  position: absolute;
+  top: 0;
+  left: 280px; /* 70% da largura da barra principal (400px * 0.7 = 280px) */
+  width: 70px; /* largura da barra azul */
+  height: 100%;
+  background: linear-gradient(90deg, #3399ff, #005bb5);
+  border-radius: 15px 0 0 15px; /* borda arredondada só no lado esquerdo */
+  opacity: 0.4;
+  z-index: 0;
 }
 
-/* Zona "Perfect", onde o usuário deve acertar */
+/* Zona perfeita (indicador de timing) */
 #zona-perfect {
-  position: absolute; /* Posicionada dentro da barra */
-  width: 60px; /* Largura da zona perfect */
-  height: 100%; /* Altura igual à barra */
-  left: calc(280px + 35px); /* Início da barra azul + metade da largura da barra azul */
-  transform: translateX(-50%); /* Centraliza horizontalmente na posição */
-  background: radial-gradient(circle, #00d0ff, #0066cc); /* Gradiente radial azul */
-  border-radius: 10px; /* Bordas arredondadas */
-  opacity: 0.6; /* Transparência */
-  animation: none; /* Sem animação padrão */
-  z-index: 1; /* Fica acima da barra azul */
+  position: absolute;
+  width: 60px;
+  height: 100%;
+  left: calc(280px + 35px); /* left da barra azul + metade da largura dela (70/2 = 35) */
+  transform: translateX(-50%); /* centraliza horizontalmente em relação ao left */
+  background: radial-gradient(circle, #00d0ff, #0066cc);
+  border-radius: 10px;
+  opacity: 0.6;
+  z-index: 1;
 }
 
-/* Animação pulse usada na zona-perfect ao bater a batida */
+/* Bolinha que se move na barra */
+#bolinha {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(90deg, #00ffff, #004466);
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00ffff;
+  z-index: 2;
+  transition: left 0.1s ease-out;
+}
+
+/* Feedback do resultado do timing */
+#feedback {
+  margin-top: 10px;
+  font-size: 1.5em;
+  font-weight: bold;
+  height: 40px;
+  color: #333;
+  text-align: center;
+  user-select: none;
+}
+
+/* Animação pulse para a zona perfect */
 @keyframes pulse {
   0% {
-    opacity: 0.9;
-    transform: translateX(-50%) scale(1.3);
+    box-shadow: 0 0 10px #00d0ff, 0 0 20px #00d0ff;
   }
   50% {
-    opacity: 0.3;
-    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 20px #00ffff, 0 0 40px #00ffff;
   }
   100% {
-    opacity: 0.9;
-    transform: translateX(-50%) scale(1.3);
+    box-shadow: 0 0 10px #00d0ff, 0 0 20px #00d0ff;
   }
-}
-
-/* Bolinha vermelha que se move na barra */
-#bolinha {
-  position: absolute; /* Posicionada dentro da barra */
-  top: -5px; /* Ajuste para centralizar verticalmente */
-  width: 30px; /* Largura da bolinha */
-  height: 30px; /* Altura da bolinha */
-  background: red; /* Cor vermelha */
-  border-radius: 50%; /* Circulo perfeito */
-  left: 0; /* Começa no canto esquerdo */
-  transition: left 0s; /* Movimento sem atraso */
-  z-index: 2; /* Sempre acima da barra e zona */
-}
-
-/* Feedback visual do resultado do timing */
-#feedback {
-  margin-top: 40px; /* Espaço acima */
-  font-size: 2em; /* Texto maior */
 }

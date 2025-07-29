@@ -1,127 +1,91 @@
-const bolinha = document.getElementById("bolinha");
 const bpmInput = document.getElementById("bpm");
+const startBtn = document.getElementById("startBtn");
+const bolinha = document.getElementById("bolinha");
 const zonaPerfect = document.getElementById("zona-perfect");
-const jogo = document.getElementById("jogo");
+const feedback = document.getElementById("feedback");
 
-let intervalId;
-let inputEnabled = false;
-let rodadaPausada = false;
-let spacePressedThisRound = false;
-let perfectCount = 0;
-let bolinhaAnimacaoId = null;
+let interval;
+let podeApertar = false;
+let rodadaAtiva = true;
+let comboCount = 0;
 
-function iniciarJogo() {
-  clearInterval(intervalId);
-  cancelarAnimacaoBolinha();
+const comboEl = document.createElement("div");
+comboEl.id = "comboCount";
+document.body.appendChild(comboEl);
 
+startBtn.addEventListener("click", () => {
+  clearInterval(interval);
+  iniciarTreino();
+});
+
+function iniciarTreino() {
   const bpm = parseInt(bpmInput.value);
-  const intervalo = 60000 / bpm;
+  const intervaloMs = 60000 / bpm;
 
-  startRodadas(intervalo);
-}
+  const barra = document.getElementById("barra");
+  const barraWidth = barra.offsetWidth;
+  const bolinhaWidth = bolinha.offsetWidth;
 
-function startRodadas(intervalo) {
-  rodada(); // Primeira jogada
+  const finalPos = barraWidth - bolinhaWidth;
 
-  intervalId = setInterval(() => {
-    rodada();
-  }, intervalo);
-}
+  interval = setInterval(() => {
+    bolinha.style.transition = "none";
+    bolinha.style.left = "0px";
 
-function rodada() {
-  rodadaPausada = !rodadaPausada;
-  spacePressedThisRound = false;
+    setTimeout(() => {
+      bolinha.style.transition = `left ${intervaloMs}ms linear`;
+      bolinha.style.left = `${finalPos}px`;
+    }, 20);
 
-  if (rodadaPausada) {
-    jogo.classList.add("rounda-pausa");
-    inputEnabled = false;
-    cancelarAnimacaoBolinha();
-  } else {
-    jogo.classList.remove("rounda-pausa");
-    inputEnabled = true;
-    moverBolinha();
-  }
-}
+    rodadaAtiva = !rodadaAtiva;
+    podeApertar = true;
 
-function moverBolinha() {
-  const barra = document.getElementById("barra-container");
-  const barraWidth = barra.clientWidth;
-  const bolinhaWidth = bolinha.clientWidth;
-  const start = 0;
-  const end = barraWidth - bolinhaWidth;
-
-  const bpm = parseInt(bpmInput.value);
-  const duracao = 60000 / bpm;
-
-  const startTime = performance.now();
-
-  function animate(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duracao, 1);
-    const pos = start + (end - start) * progress;
-    bolinha.style.left = `${pos}px`;
-
-    if (progress < 1 && !rodadaPausada) {
-      bolinhaAnimacaoId = requestAnimationFrame(animate);
-    }
-  }
-
-  bolinha.style.left = "0px";
-  bolinhaAnimacaoId = requestAnimationFrame(animate);
-}
-
-function cancelarAnimacaoBolinha() {
-  if (bolinhaAnimacaoId) {
-    cancelAnimationFrame(bolinhaAnimacaoId);
-    bolinhaAnimacaoId = null;
-  }
-}
-
-function showFeedback(result, type) {
-  const container = document.getElementById("feedback-container");
-  const message = document.createElement("div");
-
-  message.classList.add("feedback-message", type);
-  message.textContent = result;
-
-  container.appendChild(message);
-
-  setTimeout(() => {
-    container.removeChild(message);
-  }, 800);
+    document.body.style.opacity = rodadaAtiva ? "1" : "0.4";
+  }, intervaloMs + 200); // margem entre rodadas
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && inputEnabled && !spacePressedThisRound) {
-    spacePressedThisRound = true;
-
-    const bolinhaLeft = bolinha.offsetLeft + bolinha.clientWidth / 2;
-    const zonaStart = zonaPerfect.offsetLeft;
-    const zonaWidth = zonaPerfect.clientWidth;
-    const zonaCenter = zonaStart + zonaWidth / 2;
-    const diff = Math.abs(bolinhaLeft - zonaCenter);
-
-    let result;
-
-    if (diff < 15) {
-      result = `PERFECT x${++perfectCount}`;
-      showFeedback(result, "perfect");
-    } else if (diff < 35) {
-      result = "GREAT";
-      perfectCount = 0;
-      showFeedback(result, "great");
-    } else if (diff < 55) {
-      result = "COOL";
-      perfectCount = 0;
-      showFeedback(result, "cool");
-    } else if (diff < 80) {
-      result = "BAD";
-      perfectCount = 0;
-      showFeedback(result, "bad");
-    } else {
-      result = "MISS";
-      perfectCount = 0;
-      showFeedback(result, "miss");
-    }
+  if (e.code === "Space" && rodadaAtiva && podeApertar) {
+    podeApertar = false;
+    checarPrecisao();
   }
 });
+
+function checarPrecisao() {
+  const zona = zonaPerfect.getBoundingClientRect();
+  const bola = bolinha.getBoundingClientRect();
+
+  const centroBola = bola.left + bola.width / 2;
+  const centroZona = zona.left + zona.width / 2;
+  const distancia = Math.abs(centroBola - centroZona);
+
+  let resultado = "";
+  if (distancia < 5) {
+    resultado = "PERFECT";
+    comboCount++;
+  } else if (distancia < 15) {
+    resultado = "GREAT";
+    comboCount = 0;
+  } else if (distancia < 30) {
+    resultado = "COOL";
+    comboCount = 0;
+  } else {
+    resultado = "BAD";
+    comboCount = 0;
+  }
+
+  mostrarFeedback(resultado);
+}
+
+function mostrarFeedback(resultado) {
+  feedback.innerHTML = `<span class="${resultado.toLowerCase()}">${resultado}</span>`;
+  if (comboCount > 1) {
+    comboEl.textContent = `Perfect x${comboCount}`;
+  } else {
+    comboEl.textContent = "";
+  }
+
+  setTimeout(() => {
+    feedback.innerHTML = "";
+  }, 800);
+}

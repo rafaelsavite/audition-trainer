@@ -71,4 +71,57 @@ function moverBolinha() {
 }
 
 function cancelarAnimacaoBolinha() {
-  if
+  if (bolinhaAnimacaoId) {
+    cancelAnimationFrame(bolinhaAnimacaoId);
+    bolinhaAnimacaoId = null;
+  }
+}
+
+function showFeedback(result, type) {
+  const container = document.getElementById("feedback-container");
+  const message = document.createElement("div");
+
+  message.classList.add("feedback-message", type);
+  message.textContent = result;
+
+  container.appendChild(message);
+
+  setTimeout(() => {
+    container.removeChild(message);
+  }, 800);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space" && inputEnabled && !spacePressedThisRound) {
+    spacePressedThisRound = true;
+
+    const bolinhaLeft = bolinha.offsetLeft + bolinha.clientWidth / 2;
+    const zonaStart = zonaPerfect.offsetLeft;
+    const zonaWidth = zonaPerfect.clientWidth;
+    const zonaCenter = zonaStart + zonaWidth / 2;
+    const diff = Math.abs(bolinhaLeft - zonaCenter);
+
+    let result;
+
+    if (diff < 15) {
+      result = `PERFECT x${++perfectCount}`;
+      showFeedback(result, "perfect");
+    } else if (diff < 35) {
+      result = "GREAT";
+      perfectCount = 0;
+      showFeedback(result, "great");
+    } else if (diff < 55) {
+      result = "COOL";
+      perfectCount = 0;
+      showFeedback(result, "cool");
+    } else if (diff < 80) {
+      result = "BAD";
+      perfectCount = 0;
+      showFeedback(result, "bad");
+    } else {
+      result = "MISS";
+      perfectCount = 0;
+      showFeedback(result, "miss");
+    }
+  }
+});

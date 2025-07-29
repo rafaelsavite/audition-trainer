@@ -1,91 +1,100 @@
-const bpmInput = document.getElementById("bpm");
-const startBtn = document.getElementById("startBtn");
 const bolinha = document.getElementById("bolinha");
 const zonaPerfect = document.getElementById("zona-perfect");
 const feedback = document.getElementById("feedback");
+const bpmInput = document.getElementById("bpm");
+const startBtn = document.getElementById("startBtn");
+const perfectStreak = document.getElementById("perfect-streak");
 
-let interval;
-let podeApertar = false;
-let rodadaAtiva = true;
-let comboCount = 0;
+let animationId;
+let bpm = 120;
+let pixelsPorSegundo;
+let ultimaTecla = 0;
+let streak = 0;
 
-const comboEl = document.createElement("div");
-comboEl.id = "comboCount";
-document.body.appendChild(comboEl);
+function calcularVelocidade() {
+  bpm = parseInt(bpmInput.value);
+  pixelsPorSegundo = (document.getElementById("barra").offsetWidth + 20) * (bpm / 60);
+}
 
-startBtn.addEventListener("click", () => {
-  clearInterval(interval);
-  iniciarTreino();
-});
+function mostrarFeedback(tipo) {
+  const div = document.createElement("div");
+  div.className = "feedback-text";
+  div.textContent = tipo;
 
-function iniciarTreino() {
-  const bpm = parseInt(bpmInput.value);
-  const intervaloMs = 60000 / bpm;
+  switch (tipo) {
+    case "PERFECT":
+      div.style.color = "#00f";
+      break;
+    case "GREAT":
+      div.style.color = "#0f0";
+      break;
+    case "COOL":
+      div.style.color = "#0ff";
+      break;
+    case "BAD":
+      div.style.color = "pink";
+      break;
+  }
 
+  feedback.innerHTML = "";
+  feedback.appendChild(div);
+}
+
+function resetStreak() {
+  streak = 0;
+  perfectStreak.textContent = "Perfect x0";
+}
+
+function startAnimation() {
+  cancelAnimationFrame(animationId);
+  calcularVelocidade();
+
+  let startTime = null;
   const barra = document.getElementById("barra");
-  const barraWidth = barra.offsetWidth;
-  const bolinhaWidth = bolinha.offsetWidth;
+  const larguraBarra = barra.offsetWidth;
+  const larguraBolinha = bolinha.offsetWidth;
 
-  const finalPos = barraWidth - bolinhaWidth;
+  function animate(timestamp) {
+    if (!startTime) startTime = timestamp;
+    const elapsed = (timestamp - startTime) / 1000;
+    const distance = (elapsed * pixelsPorSegundo) % (larguraBarra + larguraBolinha);
+    bolinha.style.left = distance - larguraBolinha + "px";
+    animationId = requestAnimationFrame(animate);
+  }
 
-  interval = setInterval(() => {
-    bolinha.style.transition = "none";
-    bolinha.style.left = "0px";
-
-    setTimeout(() => {
-      bolinha.style.transition = `left ${intervaloMs}ms linear`;
-      bolinha.style.left = `${finalPos}px`;
-    }, 20);
-
-    rodadaAtiva = !rodadaAtiva;
-    podeApertar = true;
-
-    document.body.style.opacity = rodadaAtiva ? "1" : "0.4";
-  }, intervaloMs + 200); // margem entre rodadas
+  animationId = requestAnimationFrame(animate);
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && rodadaAtiva && podeApertar) {
-    podeApertar = false;
-    checarPrecisao();
+  if (e.code === "Space") {
+    const agora = Date.now();
+    if (agora - ultimaTecla < 500) return; // evita spam
+    ultimaTecla = agora;
+
+    const bolinhaX = bolinha.getBoundingClientRect().left + bolinha.offsetWidth / 2;
+    const zonaX = zonaPerfect.getBoundingClientRect();
+    const centroZona = zonaX.left + zonaX.width / 2;
+
+    const distancia = Math.abs(bolinhaX - centroZona);
+
+    if (distancia < 10) {
+      mostrarFeedback("PERFECT");
+      streak++;
+      perfectStreak.textContent = `Perfect x${streak}`;
+    } else if (distancia < 20) {
+      mostrarFeedback("GREAT");
+      resetStreak();
+    } else if (distancia < 40) {
+      mostrarFeedback("COOL");
+      resetStreak();
+    } else {
+      mostrarFeedback("BAD");
+      resetStreak();
+    }
   }
 });
 
-function checarPrecisao() {
-  const zona = zonaPerfect.getBoundingClientRect();
-  const bola = bolinha.getBoundingClientRect();
-
-  const centroBola = bola.left + bola.width / 2;
-  const centroZona = zona.left + zona.width / 2;
-  const distancia = Math.abs(centroBola - centroZona);
-
-  let resultado = "";
-  if (distancia < 5) {
-    resultado = "PERFECT";
-    comboCount++;
-  } else if (distancia < 15) {
-    resultado = "GREAT";
-    comboCount = 0;
-  } else if (distancia < 30) {
-    resultado = "COOL";
-    comboCount = 0;
-  } else {
-    resultado = "BAD";
-    comboCount = 0;
-  }
-
-  mostrarFeedback(resultado);
-}
-
-function mostrarFeedback(resultado) {
-  feedback.innerHTML = `<span class="${resultado.toLowerCase()}">${resultado}</span>`;
-  if (comboCount > 1) {
-    comboEl.textContent = `Perfect x${comboCount}`;
-  } else {
-    comboEl.textContent = "";
-  }
-
-  setTimeout(() => {
-    feedback.innerHTML = "";
-  }, 800);
-}
+startBtn.addEventListener("click", () => {
+  resetStreak();
+  startAnimation();
+});

@@ -4,7 +4,7 @@ let animationFrameId; // Guardará o ID do requestAnimationFrame para controlar 
 let bolinha = document.getElementById("bolinha"); // Seleciona o elemento HTML que representa a bolinha que se move na barra
 let zona = document.getElementById("zona-perfect"); // Seleciona o elemento da "zona perfeita", onde o usuário deve apertar a tecla
 let barra = document.getElementById("barra"); // Seleciona o container da barra onde a bolinha se movimenta
-let barraWidth = 500; // Define a largura fixa da barra (em pixels) para cálculo da posição da bolinha
+let barraWidth = 400; // Define a largura fixa da barra (em pixels) para cálculo da posição da bolinha
 let bolinhaWidth = 30; // Define a largura fixa da bolinha para ajustar seu movimento e evitar que "ultrapasse" a barra
 let startTime = 0; // Variável para registrar o momento que começa a animação da bolinha, usada para cálculo do progresso
 let duration = 0; // Duração em milissegundos de cada batida (tempo que a bolinha leva para ir de um lado ao outro)

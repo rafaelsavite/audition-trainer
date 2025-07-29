@@ -4,18 +4,14 @@ let animationFrameId;
 let bolinha = document.getElementById("bolinha");
 let zona = document.getElementById("zona-perfect");
 let barra = document.getElementById("barra");
-let barraWidth = barra.offsetWidth;
-let bolinhaWidth = bolinha.offsetWidth;
+let barraWidth = 500;
+let bolinhaWidth = 30;
+let startTime = 0;
 let duration = 0;
-
-let redBar = document.getElementById("barra-vermelha");
-let redBarWidth = 30; // largura fixa da barra vermelha
 
 function startTraining() {
   bpm = parseInt(document.getElementById("bpm").value);
   duration = 60000 / bpm;
-  barraWidth = barra.offsetWidth;
-  bolinhaWidth = bolinha.offsetWidth;
 
   Tone.start();
   const synth = new Tone.MembraneSynth().toDestination();
@@ -23,19 +19,13 @@ function startTraining() {
   clearInterval(intervalId);
   cancelAnimationFrame(animationFrameId);
 
-  zona.style.animation = "none";
-  void zona.offsetWidth; // força reflow para animação reiniciar
-
   intervalId = setInterval(() => {
     synth.triggerAttackRelease("C2", "8n");
-
-    zona.style.animation = `pulse ${60 / bpm}s ease`;
-    setTimeout(() => zona.style.animation = "none", (60 / bpm) * 1000);
-
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => zona.style.animation = "none", 400);
+    startTime = performance.now();
     animateBolinha();
   }, duration);
-
-  animateRedBar();
 }
 
 function animateBolinha() {
@@ -57,29 +47,13 @@ function animateBolinha() {
   requestAnimationFrame(frame);
 }
 
-function animateRedBar() {
-  const start = performance.now();
-
-  function step(now) {
-    let elapsed = now - start;
-    let percent = (elapsed % duration) / duration; // loop de 0 a 1
-
-    const x = percent * (barraWidth - redBarWidth);
-    redBar.style.left = `${x}px`;
-
-    requestAnimationFrame(step);
-  }
-
-  requestAnimationFrame(step);
-}
-
 document.getElementById("startBtn").addEventListener("click", startTraining);
 
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") {
-    const redBarCenter = redBar.offsetLeft + redBarWidth / 2;
-    const zonaCenter = barraWidth * 0.75; // zona azul no 75% da barra
-    const diff = Math.abs(redBarCenter - zonaCenter);
+    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
+    const zonaCenter = barraWidth * 0.75; // agora está no mesmo sistema (relativo à barra)
+    const diff = Math.abs(bolinhaCenter - zonaCenter);
 
     let result;
     if (diff < 15) result = "💯 PERFECT";

@@ -9,6 +9,7 @@
 </head>
 <body>
 
+  <!-- Mensagem de boas-vindas -->
   <h1 id="welcome-msg">Bem-vindo ao Treinador de Combos do Audition</h1>
 
   <!-- Input para ajustar o BPM -->
@@ -17,6 +18,7 @@
     <input type="number" id="bpmInput" value="120" min="60" max="300" />
   </label>
 
+  <!-- Container da barra -->
   <div id="barra-container">
     <div id="barra">
       <div id="zona-perfect"></div>
@@ -24,16 +26,18 @@
     </div>
   </div>
 
-  <!-- Feedback das mensagens (Perfect, Great...) -->
+  <!-- Feedback das mensagens (Perfect, Great, etc.) -->
   <div id="feedback"></div>
 
   <!-- Contador de BPM -->
   <div id="bpmDisplay">BPM: 120</div>
 
-  <!-- Botão redondo "Espaço" para mobile -->
+  <!-- Botão redondo "Espaço" para celular -->
   <button id="botaoEspaco">Espaço</button>
 
+  <!-- Bibliotecas e script principal -->
   <script src="https://cdn.jsdelivr.net/npm/tone"></script>
   <script src="main.js"></script>
+
 </body>
 </html>

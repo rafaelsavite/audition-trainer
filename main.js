@@ -1,158 +1,78 @@
-// Configurações iniciais
-let bpm = 120; // batidas por minuto padrão
-let duration = 60000 / bpm; // duração da batida em ms
+let bpm = 120; // Batidas por minuto iniciais
+let intervalId; // ID do intervalo para controle do loop
+let animationFrameId; // ID da animação da bolinha
+let bolinha = document.getElementById("bolinha"); // Elemento bolinha
+let zona = document.getElementById("zona-perfect"); // Elemento zona perfect
+let barra = document.getElementById("barra"); // Elemento barra principal
+let barraWidth = 400; // Largura total da barra (px)
+let bolinhaWidth = 30; // Largura da bolinha (px)
+let startTime = 0; // Tempo início da animação
+let duration = 0; // Duração de cada batida em ms
 
-// Seleção dos elementos DOM
-const bolinha = document.getElementById("bolinha");
-const zona = document.getElementById("zona-perfect");
-const barra = document.getElementById("barra");
-const feedback = document.getElementById("feedback");
-const botaoEspaco = document.getElementById("botaoEspaco");
-const bpmInput = document.getElementById("bpmInput");
-const bpmDisplay = document.getElementById("bpmDisplay");
+// Função para iniciar o treino
+function startTraining() {
+  bpm = parseInt(document.getElementById("bpm").value); // Pega bpm do input
+  duration = 60000 / bpm; // Converte bpm para duração em milissegundos
 
-// Tamanhos fixos para cálculos
-const barraWidth = 400;
-const bolinhaWidth = 30;
+  Tone.start(); // Inicializa o Tone.js para garantir som
+  const synth = new Tone.MembraneSynth().toDestination(); // Cria sintetizador para batida
 
-let animationFrameId;
-let intervalId;
+  clearInterval(intervalId); // Para intervalo anterior
+  cancelAnimationFrame(animationFrameId); // Para animação anterior
 
-let perfectStreak = 0; // contador de perfects seguidos
-let roundActive = true; // controla se pode apertar espaço (true) ou está em pausa (false)
-
-// Criação de sintetizadores para cada tipo de som (Tone.js)
-const synthPerfect = new Tone.MembraneSynth().toDestination();
-const synthGreat = new Tone.MembraneSynth().toDestination();
-const synthCool = new Tone.MembraneSynth().toDestination();
-const synthBad = new Tone.MembraneSynth().toDestination();
-const synthMiss = new Tone.MembraneSynth().toDestination();
-
-// Atualiza duração com base no BPM e exibe na tela
-function updateDuration() {
-  bpm = parseInt(bpmInput.value) || 120;
-  duration = 60000 / bpm;
-  bpmDisplay.textContent = `BPM: ${bpm}`;
-}
-
-// Função que anima a bolinha da esquerda para a direita
-function animateBolinha() {
-  const start = performance.now();
-
-  function frame(now) {
-    let elapsed = now - start;
-    let percent = elapsed / duration;
-    if (percent > 1) percent = 1;
-
-    // Calcula posição atual da bolinha (em px)
-    const x = percent * (barraWidth - bolinhaWidth);
-    bolinha.style.left = `${x}px`;
-
-    if (percent < 1) {
-      animationFrameId = requestAnimationFrame(frame);
-    }
-  }
-
-  animationFrameId = requestAnimationFrame(frame);
-}
-
-// Função que inicia uma rodada (movimento da bolinha)
-function startRound() {
-  roundActive = true;
-  updateDuration();
-
-  animateBolinha();
-
-  // Quando a rodada acabar, ativa a pausa (opacidade 0.7)
-  intervalId = setTimeout(() => {
-    roundActive = false;
-    barra.style.opacity = "0.7";
-    bolinha.style.opacity = "0.7";
-    zona.style.opacity = "0.7";
-
-    // Depois de 1s de pausa, retorna à opacidade normal e inicia nova rodada
-    setTimeout(() => {
-      barra.style.opacity = "1";
-      bolinha.style.opacity = "1";
-      zona.style.opacity = "1";
-
-      startRound();
-    }, 1000);
+  // Inicia o loop das batidas
+  intervalId = setInterval(() => {
+    synth.triggerAttackRelease("C2", "8n"); // Toca som da batida
+    zona.style.animation = "pulse 0.4s ease"; // Animação pulse na zona perfect
+    setTimeout(() => zona.style.animation = "none", 400); // Remove animação para reiniciar no próximo ciclo
+    startTime = performance.now(); // Registra tempo atual
+    animateBolinha(); // Inicia animação da bolinha
   }, duration);
 }
 
-// Mostra feedback colorido com fade out
-function showFeedback(text, classe) {
-  feedback.textContent = text;
-  feedback.className = classe;
-  feedback.style.opacity = "1";
+// Função que anima a bolinha da esquerda para direita na barra
+function animateBolinha() {
+  const start = performance.now(); // Marca início da animação
 
-  setTimeout(() => {
-    feedback.style.opacity = "0";
-  }, 800);
-}
+  // Função chamada a cada frame (~60fps)
+  function frame(now) {
+    let elapsed = now - start; // Tempo decorrido
+    let percent = elapsed / duration; // Progresso da animação (0 a 1)
+    if (percent > 1) percent = 1; // Limita a 100%
 
-// Toca som conforme resultado
-function playSound(result) {
-  switch (result) {
-    case "PERFECT": synthPerfect.triggerAttackRelease("C2", "8n"); break;
-    case "GREAT": synthGreat.triggerAttackRelease("E2", "8n"); break;
-    case "COOL": synthCool.triggerAttackRelease("G2", "8n"); break;
-    case "BAD": synthBad.triggerAttackRelease("A1", "8n"); break;
-    case "MISS": synthMiss.triggerAttackRelease("C1", "8n"); break;
-  }
-}
+    const x = percent * (barraWidth - bolinhaWidth); // Calcula posição horizontal
+    bolinha.style.left = `${x}px`; // Atualiza posição da bolinha
 
-// Checa o acerto ao apertar espaço ou clicar botão
-function checkHit() {
-  if (!roundActive) return; // ignora durante pausa
-
-  // Centro da bolinha e da zona "perfect"
-  const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
-  const zonaCenter = zona.offsetLeft + zona.offsetWidth / 2;
-
-  const diff = Math.abs(bolinhaCenter - zonaCenter);
-
-  let result = "";
-  if (diff < 15) result = "PERFECT";
-  else if (diff < 35) result = "GREAT";
-  else if (diff < 55) result = "COOL";
-  else if (diff < 80) result = "BAD";
-  else result = "MISS";
-
-  // Atualiza contador de perfect seguidos
-  if (result === "PERFECT") perfectStreak++;
-  else perfectStreak = 0;
-
-  // Exibe mensagem com contador se tiver streak
-  if (result === "PERFECT" && perfectStreak > 1) {
-    showFeedback(`Perfect x${perfectStreak}`, "perfect");
-  } else {
-    showFeedback(result.charAt(0) + result.slice(1).toLowerCase(), result.toLowerCase());
+    if (percent < 1) {
+      animationFrameId = requestAnimationFrame(frame); // Continua animando
+    }
   }
 
-  playSound(result);
+  requestAnimationFrame(frame); // Começa animação
 }
 
-// Eventos para apertar espaço ou clicar no botão
+// Evento que inicia o treino ao clicar no botão
+document.getElementById("startBtn").addEventListener("click", startTraining);
+
+// Evento que detecta tecla pressionada para checar timing
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") {
-    e.preventDefault();
-    checkHit();
+  if (e.code === "Space") { // Se for barra de espaço
+    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2; // Centro da bolinha
+    const zonaStart = 280; // Left da barra azul (px)
+    const zonaWidth = 70; // Largura da barra azul (px)
+    const zonaCenter = zonaStart + zonaWidth / 2; // Centro da zona perfect
+
+    const diff = Math.abs(bolinhaCenter - zonaCenter); // Diferença entre bolinha e zona
+
+    let result; // Variável resultado
+
+    // Avalia precisão baseado na distância
+    if (diff < 15) result = "💯 PERFECT";
+    else if (diff < 35) result = "🔥 GREAT";
+    else if (diff < 55) result = "😐 COOL";
+    else if (diff < 80) result = "❌ BAD";
+    else result = "💀 MISS";
+
+    document.getElementById("feedback").textContent = result; // Mostra resultado
   }
-});
-
-botaoEspaco.addEventListener("click", () => {
-  checkHit();
-});
-
-// Atualiza duração ao mudar BPM no input
-bpmInput.addEventListener("input", () => {
-  updateDuration();
-});
-
-// Inicializa Tone.js e inicia o treino
-Tone.start().then(() => {
-  updateDuration();
-  startRound();
 });

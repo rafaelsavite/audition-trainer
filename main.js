@@ -1,146 +1,100 @@
-// Variáveis iniciais e elementos DOM
-let bpm = 120;
-let intervalId;
-let animationFrameId;
-let bolinha = document.getElementById("bolinha");
-let zona = document.getElementById("zona-perfect");
-let barra = document.getElementById("barra");
-let barraWidth = 400;
-let bolinhaWidth = 30;
-let startTime = 0;
-let duration = 0;
+// Seleciona os elementos da barra e bolinha
+const barra = document.getElementById("barra");
+const bolinha = document.getElementById("bolinha");
+const zona = document.getElementById("zona");
+const feedback = document.getElementById("feedback");
 
-let roundActive = true; // Controla se a rodada está ativa (tecla funciona)
-let perfectStreak = 0; // Contador de perfects seguidos
+// Define tamanhos usados nos cálculos
+const barraWidth = 400;
+const bolinhaWidth = 20;
+const zonaWidth = 70;
+const zonaStart = barraWidth * 0.7; // Começa em 70% da barra
 
-// Criando sintetizadores para sons de feedback
-const synthPerfect = new Tone.MembraneSynth({
-  pitchDecay: 0.05,
-  octaves: 10,
-  oscillator: { type: "sine" },
-  envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 1 }
-}).toDestination();
+// Define tempo total de uma rodada (em milissegundos)
+const tempoTotal = 2000;
 
-const synthGreat = new Tone.MembraneSynth({
-  pitchDecay: 0.07,
-  octaves: 8,
-  oscillator: { type: "triangle" },
-  envelope: { attack: 0.002, decay: 0.12, sustain: 0, release: 1 }
-}).toDestination();
+// Controladores de rodada
+let roundActive = true;
+let perfectStreak = 0;
 
-const synthCool = new Tone.MembraneSynth({
-  pitchDecay: 0.1,
-  octaves: 5,
-  oscillator: { type: "triangle" },
-  envelope: { attack: 0.005, decay: 0.15, sustain: 0, release: 1 }
-}).toDestination();
+// Cria os sintetizadores de som para cada tipo de acerto
+const synthPerfect = new Tone.Synth().toDestination();
+const synthGreat = new Tone.Synth().toDestination();
+const synthCool = new Tone.Synth().toDestination();
+const synthBad = new Tone.Synth().toDestination();
+const synthMiss = new Tone.Synth().toDestination();
 
-const synthBad = new Tone.MembraneSynth({
-  pitchDecay: 0.2,
-  octaves: 3,
-  oscillator: { type: "square" },
-  envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 1 }
-}).toDestination();
+// Controla as rodadas alternando entre ativa e "modo espera"
+let rodadaCount = 0;
 
-const synthMiss = new Tone.MembraneSynth({
-  pitchDecay: 0.3,
-  octaves: 2,
-  oscillator: { type: "sawtooth" },
-  envelope: { attack: 0.02, decay: 0.3, sustain: 0, release: 1 }
-}).toDestination();
-
-// Função que inicia o treino
-function startTraining() {
-  bpm = parseInt(document.getElementById("bpm").value);
-  duration = 60000 / bpm;
-
-  Tone.start();
-
-  clearInterval(intervalId);
-  cancelAnimationFrame(animationFrameId);
-
+// Função principal que inicia o movimento da bolinha
+function iniciarRodada() {
   roundActive = true;
-  perfectStreak = 0; // Reseta streak quando começa treino
+  rodadaCount++;
 
-  intervalId = setInterval(() => {
-    synthPerfect.triggerAttackRelease("C2", "8n");
-    zona.style.animation = "pulse 0.4s ease";
-    setTimeout(() => zona.style.animation = "none", 400);
-    startTime = performance.now();
-    animateBolinha();
+  // Define estilo visual normal (opacidade 100%)
+  barra.style.opacity = "1";
+  bolinha.style.opacity = "1";
+  zona.style.opacity = "1";
 
-    roundActive = !roundActive;
+  // Remove qualquer animação anterior
+  bolinha.style.transition = "none";
+  bolinha.style.left = "0px";
 
-    if (roundActive) {
-      barra.style.opacity = "1";
-      zona.style.opacity = "1";
-      bolinha.style.opacity = "1";
-    } else {
-      barra.style.opacity = "0.7";
-      zona.style.opacity = "0.7";
-      bolinha.style.opacity = "0.7";
-    }
-  }, duration);
+  // Pequeno delay para iniciar a animação suavemente
+  setTimeout(() => {
+    bolinha.style.transition = `left ${tempoTotal}ms linear`;
+    bolinha.style.left = barraWidth - bolinhaWidth + "px";
+  }, 50);
+
+  // Após o tempo de animação, entra no modo de pausa visual
+  setTimeout(() => {
+    roundActive = false;
+
+    // Reduz opacidade para indicar "modo espera"
+    barra.style.opacity = "0.7";
+    bolinha.style.opacity = "0.7";
+    zona.style.opacity = "0.7";
+
+    // Espera 1 segundo e inicia próxima rodada
+    setTimeout(() => {
+      iniciarRodada();
+    }, 1000);
+  }, tempoTotal);
 }
 
-// Função que anima a bolinha
-function animateBolinha() {
-  const start = performance.now();
-
-  function frame(now) {
-    let elapsed = now - start;
-    let percent = elapsed / duration;
-    if (percent > 1) percent = 1;
-
-    const x = percent * (barraWidth - bolinhaWidth);
-    bolinha.style.left = `${x}px`;
-
-    if (percent < 1) {
-      animationFrameId = requestAnimationFrame(frame);
-    }
-  }
-
-  requestAnimationFrame(frame);
-}
-
-// Evento para iniciar o treino
-document.getElementById("startBtn").addEventListener("click", startTraining);
-
-// Evento para detectar tecla espaço e dar feedback
-document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && roundActive) {
+// Função que verifica o resultado ao pressionar espaço ou tocar
+function checarResultado() {
+  if (roundActive) {
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
-    const zonaStart = 280;
-    const zonaWidth = 70;
     const zonaCenter = zonaStart + zonaWidth / 2;
 
     const diff = Math.abs(bolinhaCenter - zonaCenter);
-
     let result;
 
-    if (diff < 15) result = "💯 PERFECT";
-    else if (diff < 35) result = "🔥 GREAT";
-    else if (diff < 55) result = "😐 COOL";
-    else if (diff < 80) result = "❌ BAD";
+    // Define feedback baseado na distância da bolinha ao centro da zona
+    if (diff < 5) result = "💯 PERFECT";
+    else if (diff < 15) result = "🔥 GREAT";
+    else if (diff < 85) result = "😐 COOL";
+    else if (diff < 110) result = "❌ BAD";
     else result = "💀 MISS";
 
-    // Atualiza o contador de perfects seguidos
+    // Conta streaks de perfects
     if (result === "💯 PERFECT") {
       perfectStreak++;
     } else {
-      perfectStreak = 0; // Reseta se não for perfect
+      perfectStreak = 0;
     }
 
-    // Monta texto do feedback, adicionando o contador se streak > 1
     let feedbackText = result;
     if (perfectStreak > 1) {
       feedbackText += ` x${perfectStreak}`;
     }
 
-    document.getElementById("feedback").textContent = feedbackText;
+    feedback.textContent = feedbackText;
 
-    // Toca som conforme resultado
-    switch(result) {
+    // Toca som correspondente ao feedback
+    switch (result) {
       case "💯 PERFECT":
         synthPerfect.triggerAttackRelease("C4", "16n");
         break;
@@ -158,4 +112,22 @@ document.addEventListener("keydown", (e) => {
         break;
     }
   }
+}
+
+// Evento para teclado: barra de espaço
+document.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    e.preventDefault();
+    checarResultado();
+  }
 });
+
+// Evento para toque em tela (celular) ou clique (PC)
+function handleTouchOrClick() {
+  checarResultado();
+}
+document.addEventListener("touchstart", handleTouchOrClick);
+document.addEventListener("click", handleTouchOrClick);
+
+// Inicia a primeira rodada
+iniciarRodada();

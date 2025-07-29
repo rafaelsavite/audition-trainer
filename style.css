@@ -14,14 +14,14 @@ body {
   background: #000;
   border-radius: 15px;
   overflow: hidden;
-  box-shadow: 0 0 8px #333 inset;
+  box-shadow: inset 0 0 8px #333;
 }
 
 #zona-perfect {
   position: absolute;
-  width: 120px; /* largura da zona azul */
+  width: 120px;
   height: 100%;
-  left: 75%; /* centralizada em 75% da barra para deixar 10% livre no final */
+  left: 75%;
   transform: translateX(-50%);
   background: radial-gradient(circle, #00d0ff, #0066cc);
   border-radius: 10px;
@@ -31,5 +31,45 @@ body {
 }
 
 @keyframes pulse {
-  0% { opacity: 0.9; transform: translateX(-50%) scale(1.3); }
-  50% { opacity: 0.3; transform: translateX(-50%) scale(1); }
+  0% {
+    opacity: 0.9;
+    transform: translateX(-50%) scale(1.3);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translateX(-50%) scale(1);
+  }
+  100% {
+    opacity: 0.9;
+    transform: translateX(-50%) scale(1.3);
+  }
+}
+
+#bolinha {
+  position: absolute;
+  top: -5px;
+  width: 30px;
+  height: 30px;
+  background: red;
+  border-radius: 50%;
+  left: 0;
+  transition: left 0s;
+  z-index: 4;
+}
+
+#barra-vermelha {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30px; /* largura fixa da barra vermelha móvel */
+  height: 100%;
+  background: red;
+  border-radius: 15px 0 0 15px;
+  z-index: 3;
+}
+
+#feedback {
+  margin-top: 40px;
+  font-size: 2em;
+  height: 2em;
+}

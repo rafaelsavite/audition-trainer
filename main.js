@@ -10,7 +10,8 @@ let barraWidth = 400;
 let bolinhaWidth = 30;
 let duration = 0;
 
-let inputEnabled = true; // controla se pode apertar espaço e validar acerto
+let inputEnabled = true; // Controla se o espaço pode ser usado nesta rodada
+let spacePressedThisRound = false; // Garante que só aperte uma vez
 let perfectCount = 0;
 
 function startTraining() {
@@ -28,15 +29,15 @@ function startTraining() {
   updateUIState();
 
   intervalId = setInterval(() => {
-    // alterna input habilitado
+    // Alterna se o espaço estará ativado ou não
     inputEnabled = !inputEnabled;
+    spacePressedThisRound = false; // Permite novo espaço a cada rodada
     updateUIState();
 
     synth.triggerAttackRelease("C2", "8n");
     zona.style.animation = "pulse 0.4s ease";
     setTimeout(() => (zona.style.animation = "none"), 400);
 
-    startTime = performance.now();
     animateBolinha();
   }, duration);
 }
@@ -65,7 +66,9 @@ function animateBolinha() {
 }
 
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space" && inputEnabled) {
+  if (e.code === "Space" && inputEnabled && !spacePressedThisRound) {
+    spacePressedThisRound = true; // Bloqueia outros espaços nessa rodada
+
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
     const zonaStart = 280;
     const zonaWidth = 70;

@@ -1,14 +1,16 @@
 // Variáveis iniciais
-let bpm = 120; // Batidas por minuto iniciais
-let intervalId; // ID do intervalo para controle do loop
-let animationFrameId; // ID da animação da bolinha
-let bolinha = document.getElementById("bolinha"); // Elemento bolinha
-let zona = document.getElementById("zona-perfect"); // Elemento zona perfect
-let barra = document.getElementById("barra"); // Elemento barra principal
-let barraWidth = 400; // Largura total da barra (px)
-let bolinhaWidth = 30; // Largura da bolinha (px)
-let startTime = 0; // Tempo início da animação
-let duration = 0; // Duração de cada batida em ms
+let bpm = 120;
+let intervalId;
+let animationFrameId;
+let bolinha = document.getElementById("bolinha");
+let zona = document.getElementById("zona-perfect");
+let barra = document.getElementById("barra");
+let barraWidth = 400;
+let bolinhaWidth = 30;
+let startTime = 0;
+let duration = 0;
+
+let roundActive = true; // Controla se a rodada é ativa (tecla funciona e opacidade 1) ou inativa (opacidade 0.7 e tecla bloqueada)
 
 // Criar sintetizadores para cada tipo de resultado
 const synthPerfect = new Tone.MembraneSynth({
@@ -46,72 +48,81 @@ const synthMiss = new Tone.MembraneSynth({
   envelope: { attack: 0.02, decay: 0.3, sustain: 0, release: 1 }
 }).toDestination();
 
-// Função para iniciar o treino
 function startTraining() {
-  bpm = parseInt(document.getElementById("bpm").value); // Pega bpm do input
-  duration = 60000 / bpm; // Converte bpm para duração em milissegundos
+  bpm = parseInt(document.getElementById("bpm").value);
+  duration = 60000 / bpm;
 
-  Tone.start(); // Inicializa o Tone.js para garantir som
+  Tone.start();
 
-  clearInterval(intervalId); // Para intervalo anterior
-  cancelAnimationFrame(animationFrameId); // Para animação anterior
+  clearInterval(intervalId);
+  cancelAnimationFrame(animationFrameId);
 
-  // Inicia o loop das batidas
+  roundActive = true; // Começa com rodada ativa
+
   intervalId = setInterval(() => {
-    synthPerfect.triggerAttackRelease("C2", "8n"); // Toca som da batida
-    zona.style.animation = "pulse 0.4s ease"; // Animação pulse na zona perfect
-    setTimeout(() => zona.style.animation = "none", 400); // Remove animação para reiniciar no próximo ciclo
-    startTime = performance.now(); // Registra tempo atual
-    animateBolinha(); // Inicia animação da bolinha
+    // Som da batida e animação da zona perfect sempre acontecem
+    synthPerfect.triggerAttackRelease("C2", "8n");
+    zona.style.animation = "pulse 0.4s ease";
+    setTimeout(() => zona.style.animation = "none", 400);
+    startTime = performance.now();
+    animateBolinha();
+
+    // Alterna o estado da rodada (ativa <-> inativa)
+    roundActive = !roundActive;
+
+    // Ajusta a opacidade do jogo conforme o estado da rodada
+    if (roundActive) {
+      barra.style.opacity = "1";
+      zona.style.opacity = "1";
+      bolinha.style.opacity = "1";
+    } else {
+      barra.style.opacity = "0.7";
+      zona.style.opacity = "0.7";
+      bolinha.style.opacity = "0.7";
+    }
   }, duration);
 }
 
-// Função que anima a bolinha da esquerda para direita na barra
 function animateBolinha() {
-  const start = performance.now(); // Marca início da animação
+  const start = performance.now();
 
-  // Função chamada a cada frame (~60fps)
   function frame(now) {
-    let elapsed = now - start; // Tempo decorrido
-    let percent = elapsed / duration; // Progresso da animação (0 a 1)
-    if (percent > 1) percent = 1; // Limita a 100%
+    let elapsed = now - start;
+    let percent = elapsed / duration;
+    if (percent > 1) percent = 1;
 
-    const x = percent * (barraWidth - bolinhaWidth); // Calcula posição horizontal
-    bolinha.style.left = `${x}px`; // Atualiza posição da bolinha
+    const x = percent * (barraWidth - bolinhaWidth);
+    bolinha.style.left = `${x}px`;
 
     if (percent < 1) {
-      animationFrameId = requestAnimationFrame(frame); // Continua animando
+      animationFrameId = requestAnimationFrame(frame);
     }
   }
 
-  requestAnimationFrame(frame); // Começa animação
+  requestAnimationFrame(frame);
 }
 
-// Evento que inicia o treino ao clicar no botão
 document.getElementById("startBtn").addEventListener("click", startTraining);
 
-// Evento que detecta tecla pressionada para checar timing e tocar sons
 document.addEventListener("keydown", (e) => {
-  if (e.code === "Space") { // Se for barra de espaço
-    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2; // Centro da bolinha
-    const zonaStart = 280; // Left da barra azul (px)
-    const zonaWidth = 70; // Largura da barra azul (px)
-    const zonaCenter = zonaStart + zonaWidth / 2; // Centro da zona perfect
+  if (e.code === "Space" && roundActive) {
+    const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2;
+    const zonaStart = 280;
+    const zonaWidth = 70;
+    const zonaCenter = zonaStart + zonaWidth / 2;
 
-    const diff = Math.abs(bolinhaCenter - zonaCenter); // Diferença entre bolinha e zona
+    const diff = Math.abs(bolinhaCenter - zonaCenter);
 
-    let result; // Variável resultado
+    let result;
 
-    // Avalia precisão baseado na distância
     if (diff < 15) result = "💯 PERFECT";
     else if (diff < 35) result = "🔥 GREAT";
     else if (diff < 55) result = "😐 COOL";
     else if (diff < 80) result = "❌ BAD";
     else result = "💀 MISS";
 
-    document.getElementById("feedback").textContent = result; // Mostra resultado
+    document.getElementById("feedback").textContent = result;
 
-    // Tocar som correspondente
     switch(result) {
       case "💯 PERFECT":
         synthPerfect.triggerAttackRelease("C4", "16n");

@@ -5,12 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Treinador de Combos do Audition</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Fonte estilosa para o texto -->
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet" />
 </head>
 <body>
 
   <h1 id="welcome-msg">Bem-vindo ao Treinador de Combos do Audition</h1>
+
+  <!-- Input para ajustar o BPM -->
+  <label for="bpmInput" style="color: white; margin-bottom: 10px;">
+    BPM:
+    <input type="number" id="bpmInput" value="120" min="60" max="300" />
+  </label>
 
   <div id="barra-container">
     <div id="barra">
@@ -19,8 +24,11 @@
     </div>
   </div>
 
-  <!-- Área para mostrar o feedback do timing -->
+  <!-- Feedback das mensagens (Perfect, Great...) -->
   <div id="feedback"></div>
+
+  <!-- Contador de BPM -->
+  <div id="bpmDisplay">BPM: 120</div>
 
   <!-- Botão redondo "Espaço" para mobile -->
   <button id="botaoEspaco">Espaço</button>

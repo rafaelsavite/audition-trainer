@@ -1,3 +1,4 @@
+// Variáveis iniciais
 let bpm = 120; // Batidas por minuto iniciais
 let intervalId; // ID do intervalo para controle do loop
 let animationFrameId; // ID da animação da bolinha
@@ -9,20 +10,55 @@ let bolinhaWidth = 30; // Largura da bolinha (px)
 let startTime = 0; // Tempo início da animação
 let duration = 0; // Duração de cada batida em ms
 
+// Criar sintetizadores para cada tipo de resultado
+const synthPerfect = new Tone.MembraneSynth({
+  pitchDecay: 0.05,
+  octaves: 10,
+  oscillator: { type: "sine" },
+  envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 1 }
+}).toDestination();
+
+const synthGreat = new Tone.MembraneSynth({
+  pitchDecay: 0.07,
+  octaves: 8,
+  oscillator: { type: "triangle" },
+  envelope: { attack: 0.002, decay: 0.12, sustain: 0, release: 1 }
+}).toDestination();
+
+const synthCool = new Tone.MembraneSynth({
+  pitchDecay: 0.1,
+  octaves: 5,
+  oscillator: { type: "triangle" },
+  envelope: { attack: 0.005, decay: 0.15, sustain: 0, release: 1 }
+}).toDestination();
+
+const synthBad = new Tone.MembraneSynth({
+  pitchDecay: 0.2,
+  octaves: 3,
+  oscillator: { type: "square" },
+  envelope: { attack: 0.01, decay: 0.2, sustain: 0, release: 1 }
+}).toDestination();
+
+const synthMiss = new Tone.MembraneSynth({
+  pitchDecay: 0.3,
+  octaves: 2,
+  oscillator: { type: "sawtooth" },
+  envelope: { attack: 0.02, decay: 0.3, sustain: 0, release: 1 }
+}).toDestination();
+
 // Função para iniciar o treino
 function startTraining() {
   bpm = parseInt(document.getElementById("bpm").value); // Pega bpm do input
   duration = 60000 / bpm; // Converte bpm para duração em milissegundos
 
   Tone.start(); // Inicializa o Tone.js para garantir som
-  const synth = new Tone.MembraneSynth().toDestination(); // Cria sintetizador para batida
 
   clearInterval(intervalId); // Para intervalo anterior
   cancelAnimationFrame(animationFrameId); // Para animação anterior
 
   // Inicia o loop das batidas
   intervalId = setInterval(() => {
-    synth.triggerAttackRelease("C2", "8n"); // Toca som da batida
+    synthPerfect.triggerAttackRelease("C2", "8n"); // Toca som da batida
     zona.style.animation = "pulse 0.4s ease"; // Animação pulse na zona perfect
     setTimeout(() => zona.style.animation = "none", 400); // Remove animação para reiniciar no próximo ciclo
     startTime = performance.now(); // Registra tempo atual
@@ -54,7 +90,7 @@ function animateBolinha() {
 // Evento que inicia o treino ao clicar no botão
 document.getElementById("startBtn").addEventListener("click", startTraining);
 
-// Evento que detecta tecla pressionada para checar timing
+// Evento que detecta tecla pressionada para checar timing e tocar sons
 document.addEventListener("keydown", (e) => {
   if (e.code === "Space") { // Se for barra de espaço
     const bolinhaCenter = bolinha.offsetLeft + bolinhaWidth / 2; // Centro da bolinha
@@ -74,5 +110,24 @@ document.addEventListener("keydown", (e) => {
     else result = "💀 MISS";
 
     document.getElementById("feedback").textContent = result; // Mostra resultado
+
+    // Tocar som correspondente
+    switch(result) {
+      case "💯 PERFECT":
+        synthPerfect.triggerAttackRelease("C4", "16n");
+        break;
+      case "🔥 GREAT":
+        synthGreat.triggerAttackRelease("E4", "16n");
+        break;
+      case "😐 COOL":
+        synthCool.triggerAttackRelease("G3", "16n");
+        break;
+      case "❌ BAD":
+        synthBad.triggerAttackRelease("D3", "16n");
+        break;
+      case "💀 MISS":
+        synthMiss.triggerAttackRelease("A2", "16n");
+        break;
+    }
   }
 });
